@@ -1,0 +1,135 @@
+## store treas in a matrix instead of nested lists
+
+## height is a set limit so we should be able to pre-allocate trees
+
+X = mtcars
+for (i in 1:10) {
+  X = rbind(X, X)
+}
+
+
+## Recursion Example
+build_tree <- function(d, n, max_depth) {
+  if (d == max_depth) {
+    return(n)
+  }
+
+  l = build_tree(d + 1, n + 2 ^ d, max_depth)
+  r = build_tree(d + 1, n + 2 ^ (d + 1), max_depth)
+
+  c(n, l, r)
+}
+
+max_nodes <- function(depth) (2 ^ (depth) - 1) + 2 ^ depth
+
+iTree = function(X, l) {
+
+  mat = matrix(0, max_nodes(l), 6, dimnames=list(NULL, c(
+    "Type","Size","Left","Right","SplitAtt","SplitValue")))
+
+  # X = data, e = current depth, l = max depth, ni = node index, mat = output matrix
+  recurse = function(X, e, l, ni=1) {
+    ## Base case
+    if (e >= l | NROW(X) <= 1) {
+      mat[ni,c("Type", "Size")] <<- c(-1, NROW(X))
+      return()
+    }
+
+    ## randomly select attribute
+    i = sample(1:NCOL(X), 1)
+    v = do.call(runif, as.list(c(1, range(X[,i]))))
+
+    ## create filter
+    f = X[,i] < v
+
+    ## modify matrix in place
+    mat[ni, c("Left")] <<- nL <- ni + 2 ^ e
+    mat[ni, c("Right")] <<- nR <- ni + 2 ^ (e + 1)
+    mat[ni, c("SplitAtt", "SplitValue", "Type")] <<- c(i, v, 1)
+
+    ## recurse
+    recurse(X[f,,drop=FALSE], e + 1, l, nL)
+    recurse(X[!f,,drop=FALSE], e + 1, l, nR)
+  }
+  recurse(X, 0, l)
+  mat
+}
+
+iForest <- function(X, nt, phi) {
+  l = ceiling(log(phi, 2))
+
+  forest = vector("list", nt)
+  for (i in 1:nt) {
+    s = sample(nrow(X), phi)
+    forest[[i]] <- iTree(X[s,], l)
+    sz = forest[[i]][,"Size"]
+    forest[[i]][,"Size"] = suppressWarnings(ifelse(sz <= 1, 0, cn(sz)))
+  }
+  forest
+}
+
+
+cn <- function(n) {
+  H = log(n - 1) + 0.5772156649
+  2 * H - (2*(n - 1)/n)
+}
+
+
+## Use RCPP to make this much faster
+
+pathLenght
+
+pathLength <- function(x, Tree, e=0, ni=1) {
+  if (Tree[ni,"Type"] == -1) {
+    return(e + Tree[ni,"Size"])
+  }
+
+  ifelse(
+    x[,Tree[ni,"SplitAtt"]] < Tree[ni,"SplitValue"],
+    pathLength(x, Tree, e + 1, Tree[ni,"Left"]),
+    pathLength(x, Tree, e + 1, Tree[ni,"Right"]))
+}
+
+
+
+
+data(titanic, package="binnr2")
+X = titanic
+
+X$Age[is.na(X$Age)] = median(X$Age, na.rm=TRUE)
+mf = model.matrix(~.-1-Survived, X)
+
+# data(titanic, package="binnr2")
+mod1 = iForest(mf, 100, phi = 256)
+
+pls = sapply(mod1, function(x) PathLength(mf, x, 0))
+p = 2^(-rowMeans(pls)/cn(256))
+
+
+tapply(titanic$Survived, cut(p, 10), mean)
+
+
+library(mjollnir)
+ks.table(-pl2$outF, titanic$Survived)
+
+library(IsolationForest)
+data(stackloss)
+mod2 = IsolationTrees(as.data.frame(mf), 100, hlim = log(256, 2), nRowSamp = 256)
+
+pl2 = AnomalyScore(as.data.frame(mf), mod2)
+
+ks.table(-pl1, titanic$Survived)
+ks.table(pl2$outF, titanic$Survived)
+
+library(gbm)
+
+test = cbind(titanic, anomaly_score=pl1)
+s = sample(nrow(test), nrow(test)/2)
+
+
+mod = gbm(Survived~., test[-s,], interaction.depth=1, shrinkage=0.1, distribution="bernoulli")
+
+p = predict(mod, test, gbm.perf(mod))
+ks.table(p[-s], test$Survived[-s])
+
+

@@ -26,6 +26,9 @@ location of a brownstone in Brooklyn. The country home might be described as "th
 on the south shore of Lake Woebegon". While directions to the brownstone must be qualified
 with much more detail: "Go north on 5th Street for 12 blocks, take a left on Van Buren, etc.."
 
+![](README_files/figure-markdown_strict/isofor-1.png)
+![](README_files/figure-markdown_strict/isofor-1.png)
+
 The country house in this example is a literal outlier. It is off by itself away from most other
 homes. Similarly, records that can be described succinctly are also outliers.
 

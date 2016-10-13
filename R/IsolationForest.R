@@ -4,8 +4,8 @@
 split_on_var <- function(x, ...) UseMethod("split_on_var")
 
 split_on_var.numeric <- function(x, ...) {
-  v = do.call(runif, as.list(c(1, range(x))))
-  list(value = v, filter = x < v)
+  v = do.call(runif, as.list(c(1, range(x, na.rm=TRUE))))
+  list(value = v, filter = x < v & !is.na(x))
 }
 
 ## sample the levels from this partition and map them back to the full levels
@@ -18,23 +18,24 @@ split_on_var.factor <- function(x, ...) {
   i = which(intToBits(s)[1:N] == 1)
   idx[l[i]] <- 1
   v = sum(2^(which(idx == 1) - 1))
-  list(value = v, filter = x %in% L[l[i]])
+  list(value = v, filter = x %in% L[l[i]] & !is.na(x))
 }
 
 iTree <- function(X, l) {
-  mat = matrix(0, max_nodes(l), 7, dimnames =
-    list(NULL, c("Type","Size","Left","Right","SplitAtt","SplitValue","AttType")))
+  mat = matrix(0, max_nodes(l, 3), 8, dimnames =
+    list(NULL, c("Type","Size","Left","Right","Miss","SplitAtt","SplitValue","AttType")))
 
   # X = data, e = current depth, l = max depth, ni = node index
   recurse <- function(X, e, l, ni=1) {
-    ## Base case
-    if (e >= l | NROW(X) <= 1) {
-      mat[ni,c("Type", "Size")] <<- c(-1, NROW(X))
-      return()
-    }
 
     ## randomly select attribute
     i = sample(1:NCOL(X), 1)
+
+    ## Base case
+    if (e >= l | NROW(X) <= 1 | all(is.na(X[,i]))) {
+      mat[ni, c("Type", "Size")] <<- c(-1, NROW(X))
+      return()
+    }
 
     ## check if factor with <= 32 levels
     res = split_on_var(X[, i, TRUE])
@@ -43,14 +44,17 @@ iTree <- function(X, l) {
     f = res$filter
 
     ## modify matrix in place
-    mat[ni, c("Left")] <<- nL <- ni + 2 ^ e
-    mat[ni, c("Right")] <<- nR <- ni + 2 ^ (e + 1)
+    mat[ni, c("Left")]  <<- nL <- ni + 3 ^ e
+    mat[ni, c("Right")] <<- nR <- ni + 3 ^ e + 1
+    mat[ni, c("Miss")]  <<- nM <- ni + 3 ^ e + 2
     mat[ni, c("SplitAtt", "SplitValue", "Type")] <<- c(i, v, 1)
     mat[ni, "AttType"] <<- ifelse(is.factor(X[,i,T]), 2, 1)
 
     ## recurse
-    recurse(X[f,,drop=FALSE], e + 1, l, nL)
-    recurse(X[!f,,drop=FALSE], e + 1, l, nR)
+    recurse(X[which(f),,drop=FALSE], e + 1, l, nL)
+    recurse(X[which(!f),,drop=FALSE], e + 1, l, nR)
+    # browser()
+    recurse(X[is.na(X[,i]),,drop=FALSE], e + 1, l, nM)
   }
   recurse(X, 0, l)
   mat
@@ -128,9 +132,12 @@ pathLength <- function(x, Tree, Forest, e=0, ni=1) {
   i  = Tree[ni,"SplitAtt"]
 
   ifelse(
-    iTreeFilter(x[,i,TRUE], ni, Tree, Forest, i),
-    pathLength(x, Tree, Forest, e + 1, Tree[ni,"Left"]),
-    pathLength(x, Tree, Forest, e + 1, Tree[ni,"Right"]))
+    is.na(x[,i]),
+    pathLength(x, Tree, Forest, e + 1, Tree[ni,"Miss"]),
+    ifelse(
+      iTreeFilter(x[,i,TRUE], ni, Tree, Forest, i),
+      pathLength(x, Tree, Forest, e + 1, Tree[ni,"Left"]),
+      pathLength(x, Tree, Forest, e + 1, Tree[ni,"Right"])))
 }
 
 
@@ -164,7 +171,7 @@ print.iForest <- function(x, ...) {
 }
 
 
-# ## optimize the prediction routine
+## optimize the prediction routine
 # N = 1e3
 # x = c(rnorm(N, 0, 0.5), rnorm(N*0.05, -1.5, 1))
 # y = c(rnorm(N, 0, 0.5), rnorm(N*0.05,  1.5, 1))
@@ -177,11 +184,12 @@ print.iForest <- function(x, ...) {
 #
 # km = kmeans(data, 2)
 # plot(x, y, col=km$cluster+1)
-#
-#
-# data(titanic, package="binnr2")
-# X = titanic
-# X$Age[is.na(X$Age)] <- median(X$Age, TRUE)
-#
-# mod = iForest(X, phi=32)
-# p = predict(mod, X[-(1:3)])
+
+data(titanic, package="binnr2")
+
+X = titanic
+X$Age[is.na(X$Age)] <- median(X$Age, TRUE)
+set.seed(100)
+mod = iForest(X[-1,,FALSE], 100, phi=16)
+p = predict(mod, X)
+plot(roc(titanic$Survived, p))

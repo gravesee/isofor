@@ -164,24 +164,37 @@ print.iForest <- function(x, ...) {
 }
 
 
+## start with a test forest
+
+
 # ## optimize the prediction routine
-# N = 1e3
-# x = c(rnorm(N, 0, 0.5), rnorm(N*0.05, -1.5, 1))
-# y = c(rnorm(N, 0, 0.5), rnorm(N*0.05,  1.5, 1))
-# data = data.frame(x, y)
-#
-# mod = iForest(X = data, 100, 32)
-# p = predict(mod, data)
-# col = ifelse(p > quantile(p, 0.95), "red", "blue")
-# plot(x, y, col=col)
-#
+N = 1e4
+x = c(rnorm(N, 0, 0.25), rnorm(N*0.05, -2, 1))
+y = c(rnorm(N, 0, 0.25), rnorm(N*0.05,  2, 1))
+data = data.frame(x, y)
+
+mod = iForest(X = data, 1000, 32)
+
+ex = expand.grid(x=seq(-6, 2, 0.1), y=seq(-5, 5, 0.1))
+p = predict(mod, ex)
+#col = ifelse(p > quantile(p, 0.954), "red", "blue")
+lattice::contourplot(p~x+y, cbind(ex, p))
+
+
+
+
 # km = kmeans(data, 2)
 # plot(x, y, col=km$cluster+1)
 #
 #
-# data(titanic, package="binnr2")
-# X = titanic
-# X$Age[is.na(X$Age)] <- median(X$Age, TRUE)
-#
-# mod = iForest(X, phi=32)
-# p = predict(mod, X[-(1:3)])
+data(titanic, package="binnr2")
+X = titanic
+X$Age[is.na(X$Age)] <- median(X$Age, TRUE)
+
+mod = iForest(X, phi=32)
+p = predict(mod, X)
+
+
+
+
+

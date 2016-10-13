@@ -20,6 +20,9 @@ Woebegon". While directions to the brownstone must be qualified with
 much more detail: "Go north on 5th Street for 12 blocks, take a left on
 Van Buren, etc.."
 
+<img src="README_files/figure-markdown_strict/2_river-house.jpg" style="height: 200px;"/>
+<img src="README_files/figure-markdown_strict/Brooklyn-brownstones.jpg" style="height: 200px;"/>
+
 The country house in this example is a literal outlier. It is off by
 itself away from most other homes. Similarly, records that can be
 described succinctly are also outliers.
@@ -27,35 +30,78 @@ described succinctly are also outliers.
 Example
 -------
 
-Here we create two random, normal vectors and add some outliers.
+Here we create two random, normal vectors and add some outliers. The
+majority of the data points are centered around (0, 0) with a standard
+deviation of 1/2. 50 outliers are introduced and are centered around
+(-1.5, 1.5) with a standard deviation of 1. This is to encourage some
+co-mingling of outliers with the bulk of the data.
 
     N = 1e3
     x = c(rnorm(N, 0, 0.5), rnorm(N*0.05, -1.5, 1))
     y = c(rnorm(N, 0, 0.5), rnorm(N*0.05,  1.5, 1))
+    ol = c(rep(0, N), rep(1, (0.05*N))) + 2
     data = data.frame(x, y)
-    plot(data)
+    plot(data, pch=ol)
     title("Dummy data with outliers")
 
-![](README_files/figure-markdown_strict/dummy-data-1.png)
+<img src="README_files/figure-markdown_strict/dummy-data-1.png" style="display: block; margin: auto;" />
+
+The code below builds an Isolation Forest by passing in the dummy data,
+the number of trees requested (100) and the number of records to
+subsample for each tree (32). The records that exceed the 95% percentile
+of the anomaly score should flag the most anomalous records. By coloring
+such records as red and plotting the results the effectiveness of the
+Isolation Forest can be viewed.
 
     mod = iForest(X = data, 100, 32)
     p = predict(mod, data)
     col = ifelse(p > quantile(p, 0.95), "red", "blue")
-    plot(x, y, col=col)
+    plot(x, y, col=col, pch=ol)
 
-![](README_files/figure-markdown_strict/isofor-1.png)
+<img src="README_files/figure-markdown_strict/isofor-1.png" style="display: block; margin: auto;" />
+
+Knowing there are two populations, the Kmeans algorithm seems like a
+good fit for identifying the two clusters. However, we can see that it
+picks cluster centers that do not do a good job of separating the data.
 
     km = kmeans(data, 2)
-    plot(x, y, col=km$cluster+1)
+    plot(x, y, col=km$cluster+1, pch=ol)
 
-![](README_files/figure-markdown_strict/kmeans-1.png)
+<img src="README_files/figure-markdown_strict/kmeans-1.png" style="display: block; margin: auto;" />
 
-Including Plots
----------------
+Comparison of Results
+---------------------
 
-You can also embed plots, for example:
+We can compare the accuracy of identifying outliers by comparing the
+confusion matrix for each classification.
 
-![](README_files/figure-markdown_strict/pressure-1.png)
+    table(iForest=p  > quantile(p, 0.95), Actual=ol == 3)
 
-Note that the `echo = FALSE` parameter was added to the code chunk to
-prevent printing of the R code that generated the plot.
+    ##        Actual
+    ## iForest FALSE TRUE
+    ##   FALSE   981   16
+    ##   TRUE     19   34
+
+    table(KMeans=km$cluster == 1, Actual=ol == 3)
+
+    ##        Actual
+    ## KMeans  FALSE TRUE
+    ##   FALSE   221   48
+    ##   TRUE    779    2
+
+ROC Curve
+---------
+
+    r = pROC::roc(ol == 3, p)
+    plot(r)
+
+    ## 
+    ## Call:
+    ## roc.default(response = ol == 3, predictor = p)
+    ## 
+    ## Data: p in 1000 controls (ol == 3 FALSE) < 50 cases (ol == 3 TRUE).
+    ## Area under the curve: 0.9559
+
+    title("ROC Curve for Isolation Forest")
+
+<img src="README_files/figure-markdown_strict/roc-1.png" style="display: block; margin: auto;" />

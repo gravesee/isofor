@@ -158,43 +158,8 @@ predict.iForest <- function(object, newdata, ...) {
   2^(-rowMeans(pls)/cn(object$phi))
 }
 
+#' @export
 print.iForest <- function(x, ...) {
   txt = sprintf("Isolation Forest\n |- %d Trees\n |- Max Depth %d", x$nTrees, x$l)
   cat(txt)
 }
-
-
-## start with a test forest
-
-
-# ## optimize the prediction routine
-N = 1e4
-x = c(rnorm(N, 0, 0.25), rnorm(N*0.05, -2, 1))
-y = c(rnorm(N, 0, 0.25), rnorm(N*0.05,  2, 1))
-data = data.frame(x, y)
-
-mod = iForest(X = data, 1000, 32)
-
-ex = expand.grid(x=seq(-6, 2, 0.1), y=seq(-5, 5, 0.1))
-p = predict(mod, ex)
-#col = ifelse(p > quantile(p, 0.954), "red", "blue")
-lattice::contourplot(p~x+y, cbind(ex, p))
-
-
-
-
-# km = kmeans(data, 2)
-# plot(x, y, col=km$cluster+1)
-#
-#
-data(titanic, package="binnr2")
-X = titanic
-X$Age[is.na(X$Age)] <- median(X$Age, TRUE)
-
-mod = iForest(X, phi=32)
-p = predict(mod, X)
-
-
-
-
-

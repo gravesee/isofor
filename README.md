@@ -22,7 +22,7 @@ Van Buren, etc.."
 
 |Isolated|Densely Distributed|
 ---------|--------------------
-<img src="README_files/figure-markdown_strict/2_river-house.jpg"/>|<img src="README_files/figure-markdown_strict/Brooklyn-brownstones.jpg"/>
+<img src="README_files/figure-markdown_strict/2_river-house.jpg" width="200"/>|<img src="README_files/figure-markdown_strict/Brooklyn-brownstones.jpg" width="200"/>
 
 The country house in this example is a literal outlier. It is off by
 itself away from most other homes. Similarly, records that can be

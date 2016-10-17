@@ -20,7 +20,9 @@ Woebegon". While directions to the brownstone must be qualified with
 much more detail: "Go north on 5th Street for 12 blocks, take a left on
 Van Buren, etc.."
 
-<img src="README_files/figure-markdown_strict/2_river-house.jpg" height="250"/><img src="README_files/figure-markdown_strict/Brooklyn-brownstones.jpg" height="250"/>
+Isolated             |  Dense
+:-------------------------:|:-------------------------:
+<img src="README_files/figure-markdown_strict/2_river-house.jpg" height="250"/> | <img src="README_files/figure-markdown_strict/Brooklyn-brownstones.jpg" height="250"/>
 
 The country house in this example is a literal outlier. It is off by
 itself away from most other homes. Similarly, records that can be

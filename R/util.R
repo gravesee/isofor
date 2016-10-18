@@ -8,3 +8,11 @@ cn <- function(n) {
 max_nodes <- function(l, b=2) {
   (b ^ (l) - 1) + b ^ l
 }
+
+
+## get parent node given a child node
+p = function(n) {
+  pow = ceiling(log(n, 2)) - 1
+  res = n - 2 ^ (pow + 1)
+  ifelse(n == 1, 0, ifelse(res > 0, res, n - 2 ^ (pow)))
+}

@@ -13,3 +13,4 @@ RoxygenNote: 5.0.1
 Collate:
     'util.R'
     'IsolationForest.R'
+    'predict.R'

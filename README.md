@@ -20,8 +20,24 @@ Woebegon". While directions to the brownstone must be qualified with
 much more detail: "Go north on 5th Street for 12 blocks, take a left on
 Van Buren, etc.."
 
-<img src="README_files/figure-markdown_strict/2_river-house.jpg" style="height: 200px;"/>
-<img src="README_files/figure-markdown_strict/Brooklyn-brownstones.jpg" style="height: 200px;"/>
+<table style="width:78%;">
+<colgroup>
+<col width="38%" />
+<col width="38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Isolated</th>
+<th align="center">Dense</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center"><img src="README_files/figure-markdown_strict/2_river-house.jpg" height="250"/></td>
+<td align="center"><img src="README_files/figure-markdown_strict/Brooklyn-brownstones.jpg" height="250"/></td>
+</tr>
+</tbody>
+</table>
 
 The country house in this example is a literal outlier. It is off by
 itself away from most other homes. Similarly, records that can be
@@ -79,15 +95,15 @@ confusion matrix for each classification.
 
     ##        Actual
     ## iForest FALSE TRUE
-    ##   FALSE   981   16
-    ##   TRUE     19   34
+    ##   FALSE   987   10
+    ##   TRUE     13   40
 
     table(KMeans=km$cluster == 1, Actual=ol == 3)
 
     ##        Actual
     ## KMeans  FALSE TRUE
-    ##   FALSE   221   48
-    ##   TRUE    779    2
+    ##   FALSE   282   49
+    ##   TRUE    718    1
 
 ROC Curve
 ---------
@@ -100,7 +116,7 @@ ROC Curve
     ## roc.default(response = ol == 3, predictor = p)
     ## 
     ## Data: p in 1000 controls (ol == 3 FALSE) < 50 cases (ol == 3 TRUE).
-    ## Area under the curve: 0.9559
+    ## Area under the curve: 0.9715
 
     title("ROC Curve for Isolation Forest")
 

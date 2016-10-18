@@ -21,40 +21,45 @@ split_on_var.factor <- function(x, ...) {
   list(value = v, filter = x %in% L[l[i]])
 }
 
-iTree <- function(X, l) {
+## pull the recursive function out
+# X = data, e = current depth, l = max depth, ni = node index
 
-  mat = matrix(0, max_nodes(l), 7, dimnames =
-    list(NULL, c("Type","Size","Left","Right","SplitAtt","SplitValue","AttType")))
-
-  # X = data, e = current depth, l = max depth, ni = node index
-  recurse <- function(X, e, l, ni=1) {
-    ## Base case
-    if (e >= l | NROW(X) <= 1) {
-      mat[ni,c("Type", "Size")] <<- c(-1, NROW(X))
-      return()
-    }
-
-    ## randomly select attribute
-    i = sample(1:NCOL(X), 1)
-
-    ## check if factor with <= 32 levels
-    res = split_on_var(X[, i, TRUE])
-
-    v = res$value
-    f = res$filter
-
-    ## modify matrix in place
-    mat[ni, c("Left")] <<- nL <- ni + 2 ^ e
-    mat[ni, c("Right")] <<- nR <- ni + 2 ^ (e + 1)
-    mat[ni, c("SplitAtt", "SplitValue", "Type")] <<- c(i, v, 1)
-    mat[ni, "AttType"] <<- ifelse(is.factor(X[,i,T]), 2, 1)
-
-    ## recurse
-    recurse(X[f,,drop=FALSE], e + 1, l, nL)
-    recurse(X[!f,,drop=FALSE], e + 1, l, nR)
+recurse <- function(X, e, l, ni=1, env) {
+  ## Base case
+  if (e >= l | NROW(X) <= 1) {
+    env$mat[ni,c("Type", "Size")] <- c(-1, NROW(X))
+    return()
   }
-  recurse(X, 0, l)
-  mat
+
+  ## randomly select attribute
+  i = sample(1:NCOL(X), 1)
+
+  ## check if factor with <= 32 levels
+  res = split_on_var(X[, i, TRUE])
+  f = res$filter
+
+  ## modify matrix in place
+  env$mat[ni, c("Left")] <- nL <- ni + 2 ^ e
+  env$mat[ni, c("Right")] <- nR <- ni + 2 ^ (e + 1)
+  env$mat[ni, c("SplitAtt", "SplitValue", "Type")] <- c(i, res$value, 1)
+  env$mat[ni, "AttType"] <- ifelse(is.factor(X[,i,T]), 2, 1)
+
+  ## recurse
+  recurse(X[f,,drop=FALSE] , e + 1, l, nL, env)
+  recurse(X[!f,,drop=FALSE], e + 1, l, nR, env)
+}
+
+
+iTree <- function(X, l) {
+  env = new.env()
+  env$mat = matrix(0,
+    nrow = max_nodes(l),
+    ncol = 7,
+    dimnames = list(NULL,
+      c("Type","Size","Left","Right","SplitAtt","SplitValue","AttType")))
+
+  recurse(X, e=0, l=l, ni=1, env)
+  env$mat
 }
 
 #' @title iForest
@@ -106,6 +111,6 @@ iForest <- function(X, nt=100, phi=256) {
 
 #' @export
 print.iForest <- function(x, ...) {
-  txt = sprintf("Isolation Forest\n |- %d Trees\n |- Max Depth %d", x$nTrees, x$l)
+  txt = sprintf("Isolation Forest with %d Trees and Max Depth of %d", x$nTrees, x$l)
   cat(txt)
 }

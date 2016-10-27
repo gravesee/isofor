@@ -4,7 +4,8 @@
 \alias{predict.iForest}
 \title{predcit.iForest}
 \usage{
-\method{predict}{iForest}(object, newdata, ..., type = c("score", "nodes"))
+\method{predict}{iForest}(object, newdata, ..., type = c("score", "nodes",
+  "terminal"))
 }
 \arguments{
 \item{object}{an \code{iForest} object}

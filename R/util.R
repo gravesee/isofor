@@ -16,3 +16,11 @@ p = function(n) {
   res = n - 2 ^ (pow + 1)
   ifelse(n == 1, 0, ifelse(res > 0, res, n - 2 ^ (pow)))
 }
+
+#' @export
+isofor_demo = function() {
+  appDir = system.file("isofor-demo", package = "isofor")
+  #shinyApp(ui = ui, server = server, )
+  shiny::runApp(appDir)
+}
+

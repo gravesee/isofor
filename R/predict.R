@@ -60,7 +60,7 @@ nodeMembership <- function(x, Tree, Forest) {
 #'
 #'
 #' @export
-predict.iForest <- function(object, newdata, ..., type=c("score","nodes")) {
+predict.iForest <- function(object, newdata, ..., type=c("score","nodes","terminal")) {
   type = match.arg(type)
 
   if (!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
@@ -81,6 +81,9 @@ predict.iForest <- function(object, newdata, ..., type=c("score","nodes")) {
     },
     "nodes" = {
       lapply(object$forest, function(f) nodeMembership(newdata, f, object))
+    },
+    "terminal" = {
+      lapply(object$forest, function(f) findNode(newdata, f, object))
     }
   )
 }

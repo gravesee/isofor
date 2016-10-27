@@ -3,3 +3,4 @@
 S3method(predict,iForest)
 S3method(print,iForest)
 export(iForest)
+export(isofor_demo)

@@ -19,7 +19,7 @@ p = function(n) {
 
 #' @export
 isofor_demo = function() {
-  appDir = system.file("isofor-demo", package = "isofor")
+  appDir = system.file("shiny-examples", "isofor-demo", package = "isofor")
   #shinyApp(ui = ui, server = server, )
   shiny::runApp(appDir)
 }

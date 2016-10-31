@@ -23,7 +23,6 @@ split_on_var.factor <- function(x, ...) {
 
 ## pull the recursive function out
 # X = data, e = current depth, l = max depth, ni = node index
-
 recurse <- function(X, e, l, ni=1, env) {
   ## Base case
   if (e >= l | NROW(X) <= 1) {
@@ -107,7 +106,6 @@ iForest <- function(X, nt=100, phi=256) {
       vLevels = sapply(X, levels)),
     class = "iForest")
 }
-
 
 #' @export
 print.iForest <- function(x, ...) {

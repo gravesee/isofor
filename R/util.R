@@ -1,3 +1,7 @@
+#' @useDynLib isofor
+#' @importFrom Rcpp sourceCpp
+NULL
+
 ## helper to calculate average path length
 cn <- function(n) {
   H = log(n - 1) + 0.5772156649

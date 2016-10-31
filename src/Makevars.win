@@ -1,0 +1,1 @@
+PKG_CXXFLAGS += -I"C:/Rtools/gcc-4.6.3/include"

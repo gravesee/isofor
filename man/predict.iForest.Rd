@@ -4,13 +4,15 @@
 \alias{predict.iForest}
 \title{predcit.iForest}
 \usage{
-\method{predict}{iForest}(object, newdata, ..., type = c("score", "nodes",
+\method{predict}{iForest}(object, newdata, ..., method = c("cpp", "r",
   "terminal"))
 }
 \arguments{
 \item{object}{an \code{iForest} object}
 
 \item{newdata}{a dataset to predict}
+
+\item{type}{predict can export the anamoly score, a list of nodes, or the terminal nodes}
 }
 \description{
 predict.iForest is a method of the predict generic function.

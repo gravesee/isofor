@@ -2,7 +2,10 @@
 #include <Rinternals.h>
 using namespace Rcpp;
 
+// TODO: add comments to code
+
 enum Tree { Type, Size, Left, Right, SplitAtt, SplitValue, AttType };
+enum vType { Numeric = 1, Factor = 2};
 
 // [[Rcpp::export]]
 IntegerVector which_eq_one(int d) {
@@ -18,6 +21,7 @@ IntegerVector which_eq_one(int d) {
   return res;
 }
 
+// [[Rcpp::export]]
 LogicalVector iTreeFilter_numeric (NumericVector x, int ni, NumericMatrix Tree, List Forest) {
   return x < Tree(ni, SplitValue);
 }
@@ -49,9 +53,9 @@ NumericVector pathLength_cpp(DataFrame x, NumericMatrix Tree, List Forest, doubl
   }
 
   int i = Tree(ni, SplitAtt) - 1;
-  int t = Tree(ni, AttType);
+  int type = Tree(ni, AttType);
 
-  LogicalVector f = (t == 2) ?
+  LogicalVector f = (type == Factor) ?
     iTreeFilter_factor(Rcpp::as<IntegerVector>(x[i]), ni, Tree, Forest) :
     iTreeFilter_numeric(Rcpp::as<NumericVector>(x[i]), ni, Tree, Forest);
 

@@ -107,7 +107,6 @@ iForest <- function(X, nt=100, phi=256) {
     class = "iForest")
 }
 
-
 #' @export
 print.iForest <- function(x, ...) {
   txt = sprintf("Isolation Forest with %d Trees and Max Depth of %d", x$nTrees, x$l)

@@ -26,37 +26,16 @@ pathLength2 <- function(x, Tree, Forest, e=0, ni=0) {
   pathLength_cpp(x, Tree, Forest, e=0, ni=0, as.integer(nrow(x)))
 }
 
-findNode <- function(x, Tree, Forest, e=0, ni=1) {
-  if (Tree[ni,"Type"] == -1) return(ni)
-  i  = Tree[ni,"SplitAtt"]
-
-  ifelse(
-    iTreeFilter(x[,i,TRUE], ni, Tree, Forest, i),
-    findNode(x, Tree, Forest, e + 1, Tree[ni,"Left"]),
-    findNode(x, Tree, Forest, e + 1, Tree[ni,"Right"]))
-}
-
-nodeMembership <- function(x, Tree, Forest) {
-  res = findNode(x, Tree, Forest)
-  id = seq.int(nrow(x))
-  flags = matrix(0, nrow(x), max_nodes(Forest$l))
-  flags[cbind(id, res)] <- 1
-  while (any(res > 0)) {
-    flags[cbind(id, p(res))] <- 1
-    res <- p(res)
-  }
-  flags
-}
-
 #' @title predcit.iForest
 #' @description predict.iForest is a method of the predict generic function.
 #' @param object an \code{iForest} object
 #' @param newdata a dataset to predict
 #' @param type predict can export the anamoly score, a list of nodes, or the terminal nodes
 #' @export
-predict.iForest <- function(object, newdata, ..., type=c("cpp","r","terminal")) {
+predict.iForest <- function(object, newdata, ..., method = c("cpp","r","terminal")) {
   type = match.arg(type)
 
+  # TODO: check for factors and numeric only, error otherwise
   if (!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
 
   i = match(object$vNames, names(newdata))
@@ -68,7 +47,7 @@ predict.iForest <- function(object, newdata, ..., type=c("cpp","r","terminal")) 
   }
 
   switch(
-    type,
+    method,
     "cpp" = {
       pls = sapply(object$forest, function(f) pathLength2(newdata, f, object))
       2^(-rowMeans(pls)/cn(object$phi))
@@ -76,9 +55,6 @@ predict.iForest <- function(object, newdata, ..., type=c("cpp","r","terminal")) 
     "r" = {
       pls = sapply(object$forest, function(f) pathLength(newdata, f, object))
       2^(-rowMeans(pls)/cn(object$phi))
-    },
-    "terminal" = {
-      lapply(object$forest, function(f) findNode(newdata, f, object))
     }
   )
 }

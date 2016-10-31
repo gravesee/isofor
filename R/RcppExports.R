@@ -5,6 +5,10 @@ which_eq_one <- function(d) {
     .Call('isofor_which_eq_one', PACKAGE = 'isofor', d)
 }
 
+iTreeFilter_numeric <- function(x, ni, Tree, Forest) {
+    .Call('isofor_iTreeFilter_numeric', PACKAGE = 'isofor', x, ni, Tree, Forest)
+}
+
 iTreeFilter_factor <- function(x, ni, Tree, Forest) {
     .Call('isofor_iTreeFilter_factor', PACKAGE = 'isofor', x, ni, Tree, Forest)
 }

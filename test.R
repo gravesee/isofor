@@ -9,10 +9,10 @@ library(isofor)
 x = mtcars
 x = titanic[,c("Sex","Pclass","Embarked")]
 x = titanic
-#for (i in 1:10) x = rbind(x, x)
+for (i in 1:8) x = rbind(x, x)
 
-mod = iForest(x, 20, phi=16)
-p1 = predict(mod, x, type="cpp")
+mod = iForest(x, 20, phi=256)
+p1 = predict(mod, x, method="cpp")
 p2 = predict(mod, x, type="r")
 
 
@@ -29,5 +29,5 @@ which(intToBits(2) == 1) - 1
 
 microbenchmark::microbenchmark(
   predict(mod, x, type="cpp"),
-  predict(mod, x, type="r"), times = 1)
+  predict(mod, x, type="r"), times = 5)
 

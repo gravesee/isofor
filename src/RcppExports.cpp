@@ -16,6 +16,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// iTreeFilter_numeric
+LogicalVector iTreeFilter_numeric(NumericVector x, int ni, NumericMatrix Tree, List Forest);
+RcppExport SEXP isofor_iTreeFilter_numeric(SEXP xSEXP, SEXP niSEXP, SEXP TreeSEXP, SEXP ForestSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type ni(niSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type Tree(TreeSEXP);
+    Rcpp::traits::input_parameter< List >::type Forest(ForestSEXP);
+    rcpp_result_gen = Rcpp::wrap(iTreeFilter_numeric(x, ni, Tree, Forest));
+    return rcpp_result_gen;
+END_RCPP
+}
 // iTreeFilter_factor
 LogicalVector iTreeFilter_factor(IntegerVector x, int ni, NumericMatrix Tree, List Forest);
 RcppExport SEXP isofor_iTreeFilter_factor(SEXP xSEXP, SEXP niSEXP, SEXP TreeSEXP, SEXP ForestSEXP) {

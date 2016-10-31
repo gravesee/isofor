@@ -28,17 +28,11 @@ LogicalVector iTreeFilter_numeric (NumericVector x, int ni, NumericMatrix Tree, 
 
 // [[Rcpp::export]]
 LogicalVector iTreeFilter_factor (IntegerVector x, int ni, NumericMatrix Tree, List Forest) {
-  double v = Tree(ni, SplitValue);
-
-  Rcpp::IntegerVector f = which_eq_one(v) + 1;
+  Rcpp::IntegerVector f = which_eq_one(Tree(ni, SplitValue)) + 1;
   Rcpp::LogicalVector res(x.size(), FALSE);
 
-  for (int i = 0; i < res.size(); i++) {
-    for (int j = 0; j < f.size(); j++) {
-      if (x[i] == f[j]) {
-        res[i] = TRUE;
-      }
-    }
+  for (int j = 0; j < f.size(); j++) {
+    res = res | (x == f[j]);
   }
 
   return res;

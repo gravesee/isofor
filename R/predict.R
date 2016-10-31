@@ -33,7 +33,7 @@ pathLength2 <- function(x, Tree, Forest, e=0, ni=0) {
 #' @param type predict can export the anamoly score, a list of nodes, or the terminal nodes
 #' @export
 predict.iForest <- function(object, newdata, ..., method = c("cpp","r","terminal")) {
-  type = match.arg(type)
+  method = match.arg(method)
 
   # TODO: check for factors and numeric only, error otherwise
   if (!is.data.frame(newdata)) newdata <- as.data.frame(newdata)

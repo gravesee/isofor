@@ -30,4 +30,8 @@ begins again on the left and right subsets of the data. Tree building terminates
 maximum depth of the tree is reached or there are 1 or fewer observations in the filtered
 subset.
 }
+\references{
+F. T. Liu, K. M. Ting, Z.-H. Zhou, "Isolation-based anomaly detection",
+\emph{ACM Trans. Knowl. Discov. Data}, vol. 6, no. 1, pp. 3:1-3:39, Mar. 2012.
+}
 

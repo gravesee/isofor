@@ -11,9 +11,11 @@ x = titanic[,c("Sex","Pclass","Embarked")]
 x = titanic
 for (i in 1:8) x = rbind(x, x)
 
-mod = iForest(x, 20, phi=256)
-p1 = predict(mod, x, method="cpp")
-p2 = predict(mod, x, type="r")
+mod = iForest(x, 100, phi=128)
+p1 = predict(mod, x)
+
+p2 = predict(mod, x, method="r")
+p3 = predict(mod, x)
 
 
 

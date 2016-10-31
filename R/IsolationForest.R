@@ -80,6 +80,8 @@ iTree <- function(X, l) {
 #' subset.
 #'
 #' @return an \code{iForest} object
+#' @references F. T. Liu, K. M. Ting, Z.-H. Zhou, "Isolation-based anomaly detection",
+#' \emph{ACM Trans. Knowl. Discov. Data}, vol. 6, no. 1, pp. 3:1-3:39, Mar. 2012.
 #'
 #' @export
 iForest <- function(X, nt=100, phi=256) {

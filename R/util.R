@@ -21,6 +21,7 @@ p = function(n) {
   ifelse(n == 1, 0, ifelse(res > 0, res, n - 2 ^ (pow)))
 }
 
+
 #' @export
 isofor_demo = function() {
   appDir = system.file("shiny-examples", "isofor-demo", package = "isofor")

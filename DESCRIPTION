@@ -13,4 +13,8 @@ RoxygenNote: 5.0.1
 Collate:
     'util.R'
     'IsolationForest.R'
+    'RcppExports.R'
     'predict.R'
+LinkingTo: Rcpp
+Imports:
+    Rcpp

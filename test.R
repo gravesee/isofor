@@ -1,0 +1,33 @@
+
+
+data(titanic, package="binnr2")
+
+titanic$Age[is.na(titanic$Age)] = median(titanic$Age, na.rm=TRUE)
+
+library(isofor)
+
+x = mtcars
+x = titanic[,c("Sex","Pclass","Embarked")]
+x = titanic
+#for (i in 1:10) x = rbind(x, x)
+
+mod = iForest(x, 20, phi=16)
+p1 = predict(mod, x, type="cpp")
+p2 = predict(mod, x, type="r")
+
+
+
+f = mod$forest[[1]]
+i = f[1,"SplitAtt"]
+f1 = isofor:::iTreeFilter_factor(as.integer(x[,i]), -1, f, mod)
+f2 = isofor:::iTreeFilter.factor(x[,i], 1, f, mod)
+
+## verify this works... yes
+isofor:::which_eq_one(2)
+which(intToBits(2) == 1) - 1
+
+
+microbenchmark::microbenchmark(
+  predict(mod, x, type="cpp"),
+  predict(mod, x, type="r"), times = 1)
+

@@ -15,7 +15,7 @@ IntegerVector which_eq_one(int d) {
   std::bitset<32> bs(d);
   IntegerVector res(bs.count());
   int idx = 0;
-  for (int i = 0; i < bs.size(); i++){
+  for (size_t i = 0; i < bs.size(); i++){
     if (bs[i] == 1) {
       res[idx] = i;
       idx++;
@@ -43,11 +43,24 @@ LogicalVector iTreeFilter_factor (IntegerVector x, int ni, NumericMatrix Tree) {
   return res;
 }
 
+double cn(double n) {
+  if (n == 2) {
+    return 1;
+  } else if (n < 2) {
+    return 0;
+  } else {
+    double H = log(n - 1) + 0.5772156649;
+    return 2 * H - (2*(n - 1)/n);
+  }
+}
+
+
 // [[Rcpp::export]]
 NumericVector pathLength_cpp(DataFrame x, NumericMatrix Tree, double e, int ni, int len) {
 
   if (Tree(ni, Type) == -1) {
-    NumericVector res(len, e + Tree(ni, Size));
+    double val = e + cn(double(Tree(ni, Size)));
+    NumericVector res(len, val);
     return(res);
   }
 

@@ -93,8 +93,6 @@ iForest <- function(X, nt=100, phi=256) {
   for (i in 1:nt) {
     s = sample(nrow(X), phi)
     forest[[i]] = iTree(X[s,], l)
-    sz = forest[[i]][,"Size"]
-    forest[[i]][,"Size"] = suppressWarnings(ifelse(sz <= 1, 0, cn(sz)))
   }
 
   structure(

@@ -1,5 +1,8 @@
 library(isofor)
 
+# TODO: add tabs with different examples
+# TODO: move dummy data into dataset stored with package
+
 ## create dummy data
 N = 1e3
 x = c(rnorm(N, 0, 0.25), rnorm(N*0.05, -1.5, 1))

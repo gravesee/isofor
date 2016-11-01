@@ -1,4 +1,3 @@
-
 pathLength <- function(x, Tree, e=0, ni=0) {
   pathLength_cpp(x, Tree, e=0, ni=0, as.integer(nrow(x)))
 }
@@ -33,6 +32,7 @@ predict.iForest <- function(object, newdata, ...) {
       paste0(m, collapse = ", ")), width = 80, prefix = " "), call. = F)
   }
 
+  ## TODO: move this to cpp as well
   pls = sapply(object$forest, function(f) pathLength(newdata, f))
   2^(-rowMeans(pls)/cn(object$phi))
 }

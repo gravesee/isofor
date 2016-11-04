@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 enum Tree { Type, Size, Left, Right, SplitAtt, SplitValue, AttType };
 enum vType { Numeric = 1, Factor = 2};
-enum ForestSlots { Forest, Phi, l, nTrees, nVars, vNames, vLevels };
+enum ForestSlots { FOREST=0, PHI=1, NTREES=3};
 
 
 // This function takes the 32-bit int storing the factor pattern and converts it
@@ -84,16 +84,18 @@ NumericVector predict_iForest_cpp(DataFrame x, List Model) {
   NumericVector res(x.nrows());
 
   // extract pieces from list
-  size_t N = Model[nTrees];
-  List forest = Model[Forest];
+  int N = Rcpp::as<int>(Model[NTREES]);
+  double phi = Rcpp::as<double>(Model[PHI]);
+  List forest = Rcpp::as<List>(Model[FOREST]);
 
-  double avg = cn(Model[Phi]);
+  double avg = cn(phi);
 
   // loop over forest matrices and calculate the path length
   NumericMatrix pls(x.nrows(), N);
 
   for (int i = 0; i < N; i++) {
-    pls(_, i) = pathLength_cpp(x, forest[i], 0, 0);
+    //Rcpp::checkUserInterrupt();
+    pls(_, i) = pathLength_cpp(x, Rcpp::as<NumericMatrix>(forest[i]), 0, 0);
   }
 
   // Calculate the rowMeans of the matrix

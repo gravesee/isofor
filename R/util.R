@@ -2,6 +2,7 @@
 #' @importFrom Rcpp sourceCpp
 NULL
 
+
 ## helper to calculate average path length
 cn <- function(n) {
   if (n == 2) {

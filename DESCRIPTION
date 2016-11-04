@@ -17,4 +17,4 @@ Collate:
     'predict.R'
 LinkingTo: Rcpp
 Imports:
-    Rcpp
+  Rcpp

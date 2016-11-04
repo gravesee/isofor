@@ -2,10 +2,13 @@
 #include <Rinternals.h>
 #include <stdlib.h>
 #include <bitset>
+#include <math.h>
 using namespace Rcpp;
 
 enum Tree { Type, Size, Left, Right, SplitAtt, SplitValue, AttType };
 enum vType { Numeric = 1, Factor = 2};
+enum ForestSlots { Forest, Phi, l, nTrees, nVars, vNames, vLevels };
+
 
 // This function takes the 32-bit int storing the factor pattern and converts it
 // to a bitset. The positions of the 1-bits indicate which factor levels go left
@@ -56,11 +59,11 @@ double cn(double n) {
 
 
 // [[Rcpp::export]]
-NumericVector pathLength_cpp(DataFrame x, NumericMatrix Tree, double e, int ni, int len) {
+NumericVector pathLength_cpp(DataFrame x, NumericMatrix Tree, double e, int ni) {
 
   if (Tree(ni, Type) == -1) {
     double val = e + cn(double(Tree(ni, Size)));
-    NumericVector res(len, val);
+    NumericVector res(x.nrows(), val);
     return(res);
   }
 
@@ -71,6 +74,34 @@ NumericVector pathLength_cpp(DataFrame x, NumericMatrix Tree, double e, int ni, 
     iTreeFilter_numeric(Rcpp::as<NumericVector>(x[i]), ni, Tree);
 
   return Rcpp::wrap(ifelse(f,
-          pathLength_cpp(x, Tree, e + 1, Tree(ni, Left) - 1, len),
-          pathLength_cpp(x, Tree, e + 1, Tree(ni, Right) - 1, len)));
+          pathLength_cpp(x, Tree, e + 1, Tree(ni, Left) - 1),
+          pathLength_cpp(x, Tree, e + 1, Tree(ni, Right) - 1)));
+}
+
+// [[Rcpp::export]]
+NumericVector predict_iForest_cpp(DataFrame x, List Model) {
+
+  NumericVector res(x.nrows());
+
+  // extract pieces from list
+  size_t N = Model[nTrees];
+  List forest = Model[Forest];
+
+  double avg = cn(Model[Phi]);
+
+  // loop over forest matrices and calculate the path length
+  NumericMatrix pls(x.nrows(), N);
+
+  for (int i = 0; i < N; i++) {
+    pls(_, i) = pathLength_cpp(x, forest[i], 0, 0);
+  }
+
+  // Calculate the rowMeans of the matrix
+  for( int i=0; i < pls.nrow(); i++ ) {
+    double tmp = mean( pls(i, _) );
+    res[i] = pow(2,  -1 * tmp / avg);
+  }
+
+  return res;
+
 }

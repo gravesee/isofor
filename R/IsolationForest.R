@@ -23,7 +23,7 @@ split_on_var.factor <- function(x, ...) {
 
 ## pull the recursive function out
 # X = data, e = current depth, l = max depth, ni = node index
-recurse <- function(X, e, l, ni=1, env) {
+recurse <- function(X, e, l, ni=0, env) {
   ## Base case
   if (e >= l | NROW(X) <= 1) {
     env$mat[ni,c("Type", "Size")] <- c(-1, NROW(X))
@@ -38,8 +38,8 @@ recurse <- function(X, e, l, ni=1, env) {
   f = res$filter
 
   ## modify matrix in place
-  env$mat[ni, c("Left")] <- nL <- ni + 2 ^ e
-  env$mat[ni, c("Right")] <- nR <- ni + 2 ^ (e + 1)
+  env$mat[ni, c("Left")] <- nL <- 2 * ni + 1
+  env$mat[ni, c("Right")] <- nR <- 2 * ni + 2
   env$mat[ni, c("SplitAtt", "SplitValue", "Type")] <- c(i, res$value, 1)
   env$mat[ni, "AttType"] <- ifelse(is.factor(X[,i,T]), 2, 1)
 
@@ -57,7 +57,7 @@ iTree <- function(X, l) {
     dimnames = list(NULL,
       c("Type","Size","Left","Right","SplitAtt","SplitValue","AttType")))
 
-  recurse(X, e=0, l=l, ni=1, env)
+  recurse(X, e=0, l=l, ni=0, env)
   env$mat
 }
 

@@ -45,5 +45,22 @@ p1 = predict(mod, x, method="cpp")
 
 
 
+mod = iForest(x, phi=128)
 
+t1 = mod$forest[[1]]
+
+
+library(igraph)
+
+f = which(t1[,1] == 1)
+
+al = cbind(as.character(c(0, 0, rep(f, 2))), as.character(c(1, 2, t1[f,3:4])))
+
+g = igraph::graph_from_edgelist(al, directed = T)
+
+
+#g = set_edge_attr(g, "label", E(g), "+")
+# g = set_vertex_attr(g, "size", which(t1[,1] == -1), value = t1[which(t1[,1] == -1),"Size"])
+plot(g, layout=layout_as_tree(g), vertex.size=4, vertex.label=NA, edge.arrow.mode="-")
+g = igraph::graph_from_adjacency_matrix()
 

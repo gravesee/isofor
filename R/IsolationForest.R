@@ -9,16 +9,12 @@ split_on_var.numeric <- function(x, ...) {
 }
 
 ## sample the levels from this partition and map them back to the full levels
-split_on_var.factor <- function(x, ...) {
-  L = levels(x) ## overall levels
-  l = which(L %in% unique(x)) ## which observed levels are present?
-  N = length(L)
-  idx = rep(0, N)
-  s = sample(2^(length(l))-1, 1)
-  i = which(intToBits(s)[1:N] == 1)
-  idx[l[i]] <- 1
-  v = sum(2^(which(idx == 1) - 1))
-  list(value = v, filter = x %in% L[l[i]])
+split_on_var.factor <- function(x, ..., idx=integer(32)) {
+  l = which(levels(x) %in% unique(x)) ## which observed levels are present?
+  s = sample(2^(length(l)) - 1, 1)
+  i = l[which(intToBits(s) == 1)]
+  idx[i] = 1L
+  list(value = packBits(idx, type="integer"), filter = x %in% levels(x)[i])
 }
 
 ## pull the recursive function out
@@ -40,6 +36,7 @@ recurse <- function(X, e, l, ni=0, env) {
   ## modify matrix in place
   env$mat[ni, c("Left")] <- nL <- 2 * ni + 1
   env$mat[ni, c("Right")] <- nR <- 2 * ni + 2
+
   env$mat[ni, c("SplitAtt", "SplitValue", "Type")] <- c(i, res$value, 1)
   env$mat[ni, "AttType"] <- ifelse(is.factor(X[,i,T]), 2, 1)
 

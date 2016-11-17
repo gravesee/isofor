@@ -63,7 +63,6 @@ iTree <- function(X, l) {
 
   recurse(X, e=0, l=l, ni=1, env)
   compress_matrix(env$mat)
-  #env$mat
 }
 
 #' @title iForest

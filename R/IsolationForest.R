@@ -34,8 +34,8 @@ recurse <- function(X, e, l, ni=0, env) {
   f = res$filter
 
   ## modify matrix in place
-  env$mat[ni, c("Left")] <- nL <- 2 * ni + 1
-  env$mat[ni, c("Right")] <- nR <- 2 * ni + 2
+  env$mat[ni, c("Left")] <- nL <- 2 * ni
+  env$mat[ni, c("Right")] <- nR <- 2 * ni + 1
 
   env$mat[ni, c("SplitAtt", "SplitValue", "Type")] <- c(i, res$value, 1)
   env$mat[ni, "AttType"] <- ifelse(is.factor(X[,i,T]), 2, 1)
@@ -46,6 +46,13 @@ recurse <- function(X, e, l, ni=0, env) {
 }
 
 
+compress_matrix <- function(m) {
+  m = cbind(seq.int(nrow(m)), m)[m[,1] != 0,,drop=FALSE]
+  m[,4] = match(m[,4], m[,1], nomatch = 0)
+  m[,5] = match(m[,5], m[,1], nomatch = 0)
+  m[,-1,drop=FALSE]
+}
+
 iTree <- function(X, l) {
   env = new.env()
   env$mat = matrix(0,
@@ -54,13 +61,14 @@ iTree <- function(X, l) {
     dimnames = list(NULL,
       c("Type","Size","Left","Right","SplitAtt","SplitValue","AttType")))
 
-  recurse(X, e=0, l=l, ni=0, env)
-  env$mat
+  recurse(X, e=0, l=l, ni=1, env)
+  compress_matrix(env$mat)
+  #env$mat
 }
 
 #' @title iForest
 #'
-#' @description Build an Isolation Forest of completly random trees
+#' @description Build an Isolation Forest of completely random trees
 #'
 #' @param X a matrix or data.frame of numeric or factors values
 #' @param nt the number of trees in the ensemble

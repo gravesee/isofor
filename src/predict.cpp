@@ -79,7 +79,26 @@ NumericVector pathLength_cpp(DataFrame x, NumericMatrix Tree, double e, int ni) 
 }
 
 // [[Rcpp::export]]
-NumericVector predict_iForest_cpp(DataFrame x, List Model) {
+IntegerVector nodes_cpp(DataFrame x, NumericMatrix Tree, double e, int ni) {
+
+  if (Tree(ni, Type) == -1) {
+    IntegerVector res(x.nrows(), ni);
+    return(res);
+  }
+
+  int i = Tree(ni, SplitAtt) - 1;
+
+  LogicalVector f = (int(Tree(ni, AttType)) == Factor) ?
+  iTreeFilter_factor(Rcpp::as<IntegerVector>(x[i]), ni, Tree) :
+    iTreeFilter_numeric(Rcpp::as<NumericVector>(x[i]), ni, Tree);
+
+  return Rcpp::wrap(ifelse(f,
+    nodes_cpp(x, Tree, e + 1, Tree(ni, Left) - 1),
+    nodes_cpp(x, Tree, e + 1, Tree(ni, Right) - 1)));
+}
+
+// [[Rcpp::export]]
+NumericVector predict_iForest_pathLength_cpp(DataFrame x, List Model) {
 
   NumericVector res(x.nrows());
 
@@ -106,4 +125,22 @@ NumericVector predict_iForest_cpp(DataFrame x, List Model) {
 
   return res;
 
+}
+
+// [[Rcpp::export]]
+IntegerMatrix predict_iForest_nodes_cpp(DataFrame x, List Model) {
+
+  // extract pieces from list
+  int N = Rcpp::as<int>(Model[NTREES]);
+  List forest = Rcpp::as<List>(Model[FOREST]);
+
+  // loop over forest matrices and calculate the path length
+  IntegerMatrix nodes(x.nrows(), N);
+
+  for (int i = 0; i < N; i++) {
+    //Rcpp::checkUserInterrupt();
+    nodes(_, i) = nodes_cpp(x, Rcpp::as<NumericMatrix>(forest[i]), 0, 0);
+  }
+
+  return nodes;
 }

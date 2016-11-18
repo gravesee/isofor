@@ -5,7 +5,15 @@ pathLength_cpp <- function(x, Tree, e, ni) {
     .Call('isofor_pathLength_cpp', PACKAGE = 'isofor', x, Tree, e, ni)
 }
 
-predict_iForest_cpp <- function(x, Model) {
-    .Call('isofor_predict_iForest_cpp', PACKAGE = 'isofor', x, Model)
+nodes_cpp <- function(x, Tree, e, ni) {
+    .Call('isofor_nodes_cpp', PACKAGE = 'isofor', x, Tree, e, ni)
+}
+
+predict_iForest_pathLength_cpp <- function(x, Model) {
+    .Call('isofor_predict_iForest_pathLength_cpp', PACKAGE = 'isofor', x, Model)
+}
+
+predict_iForest_nodes_cpp <- function(x, Model) {
+    .Call('isofor_predict_iForest_nodes_cpp', PACKAGE = 'isofor', x, Model)
 }
 

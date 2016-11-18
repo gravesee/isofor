@@ -11,56 +11,62 @@ x = titanic[,c("Sex","Pclass","Embarked")]
 x = titanic
 for (i in 1:8) x = rbind(x, x)
 
-mod = iForest(x, 100, phi=128)
-p1 = predict(mod, x)
+mod = iForest(x[,-1], 500, phi=128)
+p1 = predict(mod, x, nodes=TRUE)
 
 p2 = predict(mod, x, method="r")
 p3 = predict(mod, x)
 
 
+## cluster based on nodes
+library(cluster)
 
-f = mod$forest[[1]]
-i = f[1,"SplitAtt"]
-f1 = isofor:::iTreeFilter_factor(as.integer(x[,i]), -1, f, mod)
-f2 = isofor:::iTreeFilter.factor(x[,i], 1, f, mod)
+p1 = predict(mod, x[,-1], nodes=TRUE)
 
-## verify this works... yes
-isofor:::which_eq_one(2)
-which(intToBits(2) == 1) - 1
-
-
-microbenchmark::microbenchmark(
-  predict(mod, x, type="cpp"),
-  predict(mod, x, type="r"), times = 5)
-
-
-
-library(IsolationForest)
-
-
-ifor = IsolationForest::IsolationTrees(x, 100, hlim = 8, rowSamp = TRUE, nRowSamp = 256)
-
-as = AnomalyScore(x, ifor)$outF
-p1 = predict(mod, x, method="cpp")
-
-
-
-mod = iForest(x, phi=128)
-
-t1 = mod$forest[[1]]
-
+f <- function(x, y) 1 - sum(x == y)/length(x)
+s = proxy::dist(p1, method=f)
+clus = hclust(s)
+k = cutree(clus, k = 10)
+tmp = svd(as.matrix(s), nu = 2, nv = 2)
 
 library(igraph)
+g = graph.adjacency(1-as.matrix(s), weighted = TRUE, diag = FALSE, mode = "lower")
 
-f = which(t1[,1] == 1)
+library(rgexf)
+sink("test.gexf")
+rgexf::igraph.to.gexf(g)
+sink("")
 
-al = cbind(as.character(c(0, 0, rep(f, 2))), as.character(c(1, 2, t1[f,3:4])))
+nodes_df <- data.frame(ID = c(1:vcount(g)), NAME = V(g)$name)
+# Create a dataframe edges: 1st column - source node ID, 2nd column -target node ID
+edges_df <- as.data.frame(get.edges(g, c(1:ecount(g))))
 
-g = igraph::graph_from_edgelist(al, directed = T)
+write.gexf(nodes_df, edges_df, output = "test.gexf", nodesAtt = titanic, edgesWeight = E(g)$weight)
 
 
-#g = set_edge_attr(g, "label", E(g), "+")
-# g = set_vertex_attr(g, "size", which(t1[,1] == -1), value = t1[which(t1[,1] == -1),"Size"])
-plot(g, layout=layout_as_tree(g), vertex.size=4, vertex.label=NA, edge.arrow.mode="-")
-g = igraph::graph_from_adjacency_matrix()
+
+
+
+
+p = predict(mod, d, nodes=TRUE)
+f <- function(x, y) 1-sum(x == y)/length(x)
+s = proxy::dist(p, method=f)
+clus = hclust(s)
+k = cutree(clus, k = 10)
+
+
+library(tsne)
+plt = tsne(s, k = 2)
+
+
+mod = iForest(x[,-1], 100, phi = 32)
+p = predict(mod, x[,-1], nodes=TRUE)
+## turn each tree into a one hot matrix
+
+sparse = matrix(0, nrow(p), ncol(p)*isofor:::max_nodes(ceiling(log2(32))))
+
+
+
+
+
 

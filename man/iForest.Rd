@@ -17,7 +17,7 @@ iForest(X, nt = 100, phi = 256)
 an \code{iForest} object
 }
 \description{
-Build an Isolation Forest of completly random trees
+Build an Isolation Forest of completely random trees
 }
 \details{
 An Isolation Forest is an unsupervised anomaly detection algorithm. The requested

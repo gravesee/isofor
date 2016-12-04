@@ -4,7 +4,7 @@
 \alias{predict.iForest}
 \title{predcit.iForest}
 \usage{
-\method{predict}{iForest}(object, newdata, ..., method)
+\method{predict}{iForest}(object, newdata, ..., nodes = FALSE)
 }
 \arguments{
 \item{object}{an \code{iForest} object}

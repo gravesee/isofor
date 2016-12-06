@@ -19,18 +19,18 @@ split_on_var.factor <- function(x, ..., idx=integer(32)) {
 
 ## pull the recursive function out
 # X = data, e = current depth, l = max depth, ni = node index
-recurse <- function(X, e, l, ni=0, env) {
+recurse <- function(idx, e, l, ni=0, env) {
   ## Base case
-  if (e >= l | NROW(X) <= 1) {
-    env$mat[ni,c("Type", "Size")] <- c(-1, NROW(X))
+  if (e >= l | length(idx) <= 1) {
+    env$mat[ni,c("Type", "Size")] <- c(-1, length(idx))
     return()
   }
 
   ## randomly select attribute
-  i = sample(1:NCOL(X), 1)
+  i = sample(1:NCOL(env$X), 1)
 
   ## check if factor with <= 32 levels
-  res = split_on_var(X[, i, TRUE])
+  res = split_on_var(env$X[idx, i, TRUE])
   f = res$filter
 
   ## modify matrix in place
@@ -38,11 +38,11 @@ recurse <- function(X, e, l, ni=0, env) {
   env$mat[ni, c("Right")] <- nR <- 2 * ni + 1
 
   env$mat[ni, c("SplitAtt", "SplitValue", "Type")] <- c(i, res$value, 1)
-  env$mat[ni, "AttType"] <- ifelse(is.factor(X[,i,T]), 2, 1)
+  env$mat[ni, "AttType"] <- ifelse(is.factor(env$X[,i,T]), 2, 1)
 
   ## recurse
-  recurse(X[f,,drop=FALSE] , e + 1, l, nL, env)
-  recurse(X[!f,,drop=FALSE], e + 1, l, nR, env)
+  recurse(which(f) , e + 1, l, nL, env)
+  recurse(which(!f), e + 1, l, nR, env)
 }
 
 
@@ -56,12 +56,13 @@ compress_matrix <- function(m) {
 iTree <- function(X, l) {
   env = new.env()
   env$mat = matrix(0,
-    nrow = max_nodes(l),
-    ncol = 7,
-    dimnames = list(NULL,
-      c("Type","Size","Left","Right","SplitAtt","SplitValue","AttType")))
+   nrow = max_nodes(l),
+   ncol = 7,
+   dimnames = list(NULL, c("Type","Size","Left","Right","SplitAtt","SplitValue","AttType")))
+  env$X = X
 
-  recurse(X, e=0, l=l, ni=1, env)
+  #recurse(X, e=0, l=l, ni=1, env)
+  recurse(seq.int(nrow(X)), e=0, l=l, ni=1, env)
   compress_matrix(env$mat)
 }
 
@@ -115,4 +116,9 @@ iForest <- function(X, nt=100, phi=256) {
 print.iForest <- function(x, ...) {
   txt = sprintf("Isolation Forest with %d Trees and Max Depth of %d", x$nTrees, x$l)
   cat(txt)
+}
+
+#' @export
+test_func <- function(x, num_trees, num_samples) {
+  .Call("test_func", x, as.integer(num_trees), as.integer(num_samples))
 }

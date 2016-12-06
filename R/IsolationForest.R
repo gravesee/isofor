@@ -41,8 +41,8 @@ recurse <- function(idx, e, l, ni=0, env) {
   env$mat[ni, "AttType"] <- ifelse(is.factor(env$X[,i,T]), 2, 1)
 
   ## recurse
-  recurse(which(f) , e + 1, l, nL, env)
-  recurse(which(!f), e + 1, l, nR, env)
+  recurse(idx[which(f)] , e + 1, l, nL, env)
+  recurse(idx[which(!f)], e + 1, l, nR, env)
 }
 
 

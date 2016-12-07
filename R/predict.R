@@ -8,7 +8,7 @@ pathLength <- function(x, Tree, e=0, ni=0) {
 #' @param newdata a dataset to predict
 #' @param type predict can export the anamoly score, a list of nodes, or the terminal nodes
 #' @export
-predict.iForest <- function(object, newdata, ..., nodes = FALSE) {
+predict.iForest <- function(object, newdata, ..., nodes = FALSE, sparse = FALSE) {
 
   if (!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
 
@@ -31,7 +31,9 @@ predict.iForest <- function(object, newdata, ..., nodes = FALSE) {
       paste0(m, collapse = ", ")), width = 80, prefix = " "), call. = F)
   }
 
-  if (nodes) {
+  if (sparse) {
+    predict_iForest_sparse_nodes(newdata, object)
+  } else if (nodes) {
     predict_iForest_nodes_cpp(newdata, object)
   } else {
     predict_iForest_pathLength_cpp(newdata, object)

@@ -46,10 +46,14 @@ recurse <- function(idx, e, l, ni=0, env) {
 }
 
 
+## lots of allocated matrix space goes unused because max_nodes is an upper bound
+## on how large the tree can be. This function subsets to only the rows needed
+## for prediction
 compress_matrix <- function(m) {
-  m = cbind(seq.int(nrow(m)), m)[m[,1] != 0,,drop=FALSE]
-  m[,4] = match(m[,4], m[,1], nomatch = 0)
-  m[,5] = match(m[,5], m[,1], nomatch = 0)
+  m = cbind(seq.int(nrow(m)), m)[m[,"Type"] != 0,,drop=FALSE]
+  m[,"Left"] = match(m[,"Left"], m[,1], nomatch = 0)
+  m[,"Right"] = match(m[,"Right"], m[,1], nomatch = 0)
+  m[m[,"Type"] == -1,"TerminalID"] = seq.int(sum(m[,"Type"] == -1))
   m[,-1,drop=FALSE]
 }
 
@@ -57,8 +61,8 @@ iTree <- function(X, l) {
   env = new.env()
   env$mat = matrix(0,
    nrow = max_nodes(l),
-   ncol = 7,
-   dimnames = list(NULL, c("Type","Size","Left","Right","SplitAtt","SplitValue","AttType")))
+   ncol = 8,
+   dimnames = list(NULL, c("TerminalID", "Type","Size","Left","Right","SplitAtt","SplitValue","AttType")))
   env$X = X
 
   #recurse(X, e=0, l=l, ni=1, env)
@@ -107,6 +111,7 @@ iForest <- function(X, nt=100, phi=256) {
       l       = l,
       nTrees  = nt,
       nVars   = NCOL(X),
+      nTerm   = sapply(forest, function(t) max(t[,"TerminalID"])),
       vNames  = colnames(X),
       vLevels = sapply(X, levels)),
     class = "iForest")

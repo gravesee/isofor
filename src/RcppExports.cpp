@@ -57,3 +57,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// predict_iForest_sparse_nodes
+SEXP predict_iForest_sparse_nodes(DataFrame x, List Model);
+RcppExport SEXP isofor_predict_iForest_sparse_nodes(SEXP xSEXP, SEXP ModelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< DataFrame >::type x(xSEXP);
+    Rcpp::traits::input_parameter< List >::type Model(ModelSEXP);
+    rcpp_result_gen = Rcpp::wrap(predict_iForest_sparse_nodes(x, Model));
+    return rcpp_result_gen;
+END_RCPP
+}

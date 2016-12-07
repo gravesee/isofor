@@ -5,9 +5,9 @@
 #include <math.h>
 using namespace Rcpp;
 
-enum Tree { Type, Size, Left, Right, SplitAtt, SplitValue, AttType };
+enum Tree { TerminalID, Type, Size, Left, Right, SplitAtt, SplitValue, AttType };
 enum vType { Numeric = 1, Factor = 2};
-enum ForestSlots { FOREST=0, PHI=1, NTREES=3};
+enum ForestSlots { FOREST=0, PHI=1, NTREES=3, NTERM=5};
 
 
 // This function takes the 32-bit int storing the factor pattern and converts it
@@ -82,7 +82,7 @@ NumericVector pathLength_cpp(DataFrame x, NumericMatrix Tree, double e, int ni) 
 IntegerVector nodes_cpp(DataFrame x, NumericMatrix Tree, double e, int ni) {
 
   if (Tree(ni, Type) == -1) {
-    IntegerVector res(x.nrows(), ni);
+    IntegerVector res(x.nrows(), Tree(ni, TerminalID));
     return(res);
   }
 
@@ -144,3 +144,46 @@ IntegerMatrix predict_iForest_nodes_cpp(DataFrame x, List Model) {
 
   return nodes;
 }
+
+// [[Rcpp::export]]
+SEXP predict_iForest_sparse_nodes(DataFrame x, List Model) {
+
+  // extract pieces from list
+  int num_trees = Rcpp::as<int>(Model[NTREES]);
+  IntegerVector nterm = Rcpp::as<IntegerVector>(Model[NTERM]);
+  List forest = Rcpp::as<List>(Model[FOREST]);
+
+  int n_entries = x.nrows() * num_trees;
+
+  // loop over forest matrices and calculate the path length
+  IntegerVector s4_i = IntegerVector(n_entries);
+  IntegerVector s4_j = IntegerVector(n_entries);
+
+  // create matrix position offset based on # terminal nodes per tree
+  IntegerVector offset = IntegerVector(nterm.size(), 0);
+  for (int i = 0; i < offset.size(); i++) {
+    if (i == 0) continue;
+    offset[i] = offset[i-1] + nterm[i-1];
+  }
+
+  IntegerVector nodes(x.nrows()); // temp storagage for terminal node vector
+  for (int j = 0; j < num_trees; j++) {
+    nodes = nodes_cpp(x, Rcpp::as<NumericMatrix>(forest[j]), 0, 0);
+
+    // loop over nodes and update slots
+    for (int i = 0; i < nodes.size(); i++) {
+      s4_i[j * x.nrows() + i] = i ;
+      s4_j[j * x.nrows() + i] = offset[j] + nodes[i] - 1;
+    }
+  }
+
+  S4 sparse_nodes("dgTMatrix");
+  sparse_nodes.slot("i")   = s4_i;
+  sparse_nodes.slot("j")   = s4_j;
+  sparse_nodes.slot("Dim") = IntegerVector::create(x.nrows(), sum(nterm));
+  sparse_nodes.slot("x")   = NumericVector(n_entries, 1.0);
+
+  return(sparse_nodes);
+}
+
+

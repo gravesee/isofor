@@ -17,3 +17,7 @@ predict_iForest_nodes_cpp <- function(x, Model) {
     .Call('isofor_predict_iForest_nodes_cpp', PACKAGE = 'isofor', x, Model)
 }
 
+predict_iForest_sparse_nodes <- function(x, Model) {
+    .Call('isofor_predict_iForest_sparse_nodes', PACKAGE = 'isofor', x, Model)
+}
+

@@ -5,6 +5,18 @@
 
 using namespace Rcpp;
 
+// bit_count
+IntegerVector bit_count(Rcpp::IntegerVector a, Rcpp::IntegerVector b);
+RcppExport SEXP isofor_bit_count(SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type a(aSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type b(bSEXP);
+    rcpp_result_gen = Rcpp::wrap(bit_count(a, b));
+    return rcpp_result_gen;
+END_RCPP
+}
 // pathLength_cpp
 NumericVector pathLength_cpp(DataFrame x, NumericMatrix Tree, double e, int ni);
 RcppExport SEXP isofor_pathLength_cpp(SEXP xSEXP, SEXP TreeSEXP, SEXP eSEXP, SEXP niSEXP) {

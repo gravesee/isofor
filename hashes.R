@@ -1,49 +1,47 @@
 library(isofor)
-library(Matrix)
+
 data(titanic, package="binnr2")
-
-
 x = titanic
 x$Age[is.na(x$Age)] = median(x$Age, na.rm=TRUE)
 
-mod = iForest(x[-1], 100, phi = 2)
-nodes = predict(mod, x[-1], nodes=TRUE, sparse = TRUE)
+mod = iForest(x[-1], 100, phi = 128)
+nodes = predict(mod, x[-1], nodes=TRUE)
 
 ## binary nodes
+
+sparse = sapply(data.frame(nodes), function(x) {
+  u = sort(unique(x))
+  i = numeric(max(x))
+  i[u] = seq_along(u)
+  m = matrix(0, nrow(nodes), length(u))
+  m[cbind(seq.int(nrow(nodes)), i[x])] = 1
+  m
+})
+
+X = do.call(cbind, sparse)
+
 ## try to hash it with random projection
-X = as.matrix(nodes)
-
-
-n_hashes = 20
-nbits = 31
+n_hashes = 1
+nbits = 32
 vs = replicate(n_hashes, matrix(rnorm(ncol(X) * nbits), ncol=nbits), simplify = F)
-hs = lapply(vs, function(v) cbind(X %*% v > 0, FALSE))
+hs = lapply(vs, function(v) X %*% v > 0)
 hashes = lapply(hs, apply, 1, packBits, type="integer")
 
-s = sample(nrow(X), nrow(X)/2)
+h = hashes[[1]]
+
+s = sample(nrow(x), nrow(x)/2)
+
+hw = t(sapply(h[-s], function(b) isofor:::bit_count(h[s], b)))
+
+i = t(apply(hw, 1, order))
+
+KNN = rowMeans(matrix(titanic$Survived[s[i[,1:10]]], ncol=10))
+
+r = pROC::roc(titanic$Survived[-s], KNN)
+
+s = sample(nrow(titanic), nrow(titanic)/2)
 sample_hashes = lapply(hashes, `[`, s)
 test_hashes = lapply(hashes, `[`, -s)
-
-nns <- function(q, K=10) {
-  # browser()
-  z = Map(function(a, b) bitwXor(a, b), sample_hashes, lapply(test_hashes, "[", q))
-
-  ## take top K distances for each hash
-  ids = unlist(lapply(z, function(x) order(x)[1:K]))
-  dists = unlist(Map(function(a, b) a[b], z, ids))
-
-  unique(ids[order(dists)])[1:K]
-
-  ## combine, order, and return top K
-  # res
-  #
-  # order(rowMeans(do.call(cbind, z)))
-}
-
-KNN = t(sapply(seq_along(test_hashes[[1]]), nns, K=10))
-p = rowMeans(matrix(x$Survived[s[KNN]], nrow(KNN)))
-plot(pROC::roc(titanic$Survived[-s], p))
-
 
 ## get test results
 f = function(i) {
@@ -57,7 +55,7 @@ f = function(i) {
 K = 10
 # val = lapply(seq.int(nrow(nodes))[-s], f)
 p = t(sapply(val, function(i) x$Survived[i][1:K]))
-r = pROC::roc(x$Survived[-s], rowMeans(p))
+
 
 plt = data.frame(sample_hashes[[1]], sample_hashes[[2]], sample_hashes[[3]])
 

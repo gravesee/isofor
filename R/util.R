@@ -2,6 +2,9 @@
 #' @importFrom Rcpp sourceCpp
 NULL
 
+#' @import Matrix
+NULL
+
 
 ## helper to calculate average path length
 cn <- function(n) {

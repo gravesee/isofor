@@ -72,21 +72,26 @@ km = kmeans(data, 2)
 plot(x, y, col=km$cluster+1, pch=ol)
 ```
 
-## Comparison of Results
+## Node Membership
 
-We can compare the accuracy of identifying outliers by comparing the confusion matrix for each
-classification.
+In addition to predicting an anomaly score, a node membership matrix can also be
+predicted. There are two ways to produce a nod membership matrix. The first 
+returns a matrix of size `n_obs x n_trees` and contains the terminal node ID for
+each observation:
 
-```{r confuse}
-table(iForest=p  > quantile(p, 0.95), Actual=ol == 3)
-table(KMeans=km$cluster == 1, Actual=ol == 3)
+
+```{r node-ids}
+node_ids = predict(mod, data, nodes=TRUE)
+head(node_ids[,1:10])
 ```
 
-## ROC Curve
+THe second uses the Matrix library to return a sparse matrix of 1s and 0s
+indicating node membership. There are as many ones as there are `n_obs x n_trees`
+but the dimension is much larger at `n_obs x n_terminal_nodes`:
 
-```{r roc}
-r = pROC::roc(ol == 3, p)
-plot(r)
-title("ROC Curve for Isolation Forest")
+```{r node-membership}
+library(Matrix)
+nodes = predict(mod, data, sparse=TRUE)
+head(nodes[,1:10])
 ```
 

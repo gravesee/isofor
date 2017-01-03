@@ -14,6 +14,7 @@ Collate:
     'util.R'
     'IsolationForest.R'
     'RcppExports.R'
+    'interpret.R'
     'predict.R'
 LinkingTo: Rcpp
 Imports:

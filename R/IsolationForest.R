@@ -11,7 +11,13 @@ split_on_var.numeric <- function(x, ...) {
 ## sample the levels from this partition and map them back to the full levels
 split_on_var.factor <- function(x, ..., idx=integer(32)) {
   l = which(levels(x) %in% unique(x)) ## which observed levels are present?
-  s = sample(2^(length(l)) - 1, 1)
+
+  ## don't sample 0 or all
+  # s = sample(2^(length(l)) - 1, 1)
+  s = sample(max(1, 2^(length(l)) - 2), 1)
+
+
+
   i = l[which(intToBits(s) == 1)]
   idx[i] = 1L
   list(value = packBits(idx, type="integer"), filter = x %in% levels(x)[i])
@@ -20,14 +26,21 @@ split_on_var.factor <- function(x, ..., idx=integer(32)) {
 ## pull the recursive function out
 # X = data, e = current depth, l = max depth, ni = node index
 recurse <- function(idx, e, l, ni=0, env) {
+
+  ## don't sample dups
+  #browser()
+  dups <- sapply(env$X[idx,], function(x) all(duplicated(x)[-1L]))
+
   ## Base case
-  if (e >= l | length(idx) <= 1) {
+  if (e >= l || length(idx) <= 1 || all(dups)) {
+    if (all(dups)) print("All dups!")
     env$mat[ni,c("Type", "Size")] <- c(-1, length(idx))
     return()
   }
 
   ## randomly select attribute
-  i = sample(1:NCOL(env$X), 1)
+  #i = sample(1:NCOL(env$X), 1)
+  i = sample(which(!dups), 1)
 
   ## check if factor with <= 32 levels
   res = split_on_var(env$X[idx, i, TRUE])
@@ -58,7 +71,7 @@ compress_matrix <- function(m) {
 }
 
 iTree <- function(X, l) {
-  env = new.env()
+  env = new.env() ## pass everything in this environment to avoid copies
   env$mat = matrix(0,
    nrow = max_nodes(l),
    ncol = 8,

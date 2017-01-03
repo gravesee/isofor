@@ -5,6 +5,10 @@ x = titanic
 x$Age[is.na(x$Age)] = median(x$Age, na.rm=TRUE)
 
 mod = iForest(x[-1], 100, phi = 128)
+
+as <- predict(mod, x[-1])
+
+
 nodes = predict(mod, x[-1], nodes=TRUE)
 
 ## binary nodes

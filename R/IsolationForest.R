@@ -33,7 +33,6 @@ recurse <- function(idx, e, l, ni=0, env) {
 
   ## Base case
   if (e >= l || length(idx) <= 1 || all(dups)) {
-    if (all(dups)) print("All dups!")
     env$mat[ni,c("Type", "Size")] <- c(-1, length(idx))
     return()
   }
@@ -134,9 +133,4 @@ iForest <- function(X, nt=100, phi=256) {
 print.iForest <- function(x, ...) {
   txt = sprintf("Isolation Forest with %d Trees and Max Depth of %d", x$nTrees, x$l)
   cat(txt)
-}
-
-#' @export
-test_func <- function(x, num_trees, num_samples) {
-  .Call("test_func", x, as.integer(num_trees), as.integer(num_samples))
 }

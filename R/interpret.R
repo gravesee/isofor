@@ -81,15 +81,17 @@ get_node_location <- function(mod, i) {
   if (i <= mod$nTerm[1]) return(list(tree_id=1, node_id=i))
   cuml_nodes = cumsum(mod$nTerm)
   tree_id = findInterval(i, cuml_nodes, left.open = TRUE) + 1
-  node_id = i %% cuml_nodes[(tree_id - 1)]
+  node_id = i - cuml_nodes[(tree_id - 1)]
   list(tree_id=tree_id, node_id=node_id)
 }
 
+#' @export
 `+.rule` <- function(e1, e2) {
   stopifnot(e1$var == e2$var)
   NextMethod()
 }
 
+#' @export
 `+.continuous` <- function(e1, e2) {
   structure(list(
     dir = 0,
@@ -101,6 +103,7 @@ get_node_location <- function(mod, i) {
     class = c("rule", "continuous"))
 }
 
+#' @export
 `+.discrete` <- function(e1, e2) {
   structure(list(
     dir = 0,
@@ -116,35 +119,66 @@ get_node_rules <- function(mod, i) {
   n <- get_node_from_model(mod, tree_num = pos$tree_id, node_num = pos$node_id)
   v <- sapply(n, function(x) x$var)
 
-  grps <- split(n, v)
+  i <- unique(v)
+  idx <- match(sort(i), i)
 
-  rules <- lapply(grps, function(x) if (length(x) > 1) Reduce(`+`, x) else x[[1]])
-  vapply(rules, node_to_character, "", mod = mod)
+  grps <- split(n, v)[idx] ## reorder to match original ordering
+
+  lapply(grps, function(x) if (length(x) > 1) Reduce(`+`, x) else x[[1]])
 }
 
 ## put it all together
 #' @export
 pretty_node <- function(mod, i) {
-  cat(get_node_rules(mod, i), sep="\n")
+  rules <- get_node_rules(mod, i)
+  to_print <- vapply(rules, node_to_character, "", mod = mod)
+  cat(to_print, sep="\n")
+}
+
+filter <- function(r, d) UseMethod("filter", r)
+filter.discrete <- function(r, d) d[,r$var] %in% r$val
+filter.continuous <- function(r, d) d[,r$var] >= r$rng[1] & d[r$var] < r$rng[2]
+
+traverse_logic <- function(mod, i, data, y) {
+  rules <- get_node_rules(mod, i)
+
+  ## initial filter is all TRUE
+  res <- list()
+  f <- TRUE
+  for (i in seq_along(rules)) {
+    f <- f & filter(rules[[i]], data)
+
+    n <- xtabs(~factor(f, levels = c(FALSE, TRUE), labels = 0:1) + factor(y, levels = 0:1))
+    pct <- prop.table(n, margin = 2)
+    woe <- log(apply(pct, 1, function(x) x[2]/x[1]))
+    iv  <- apply(pct, 1, diff) %*% woe
+
+    ## get stats based on this filter
+
+    res[[i]] <- list(rule=rules[[i]], n=n, pct=pct, woe=woe, iv=iv)
+  }
+  res
 }
 
 #' @export
-node_summary <- function(mod, nodes, i, y) {
-  n <- xtabs(~factor(nodes[,i], levels = 0:1)+factor(y, levels = 0:1))
-  pcts <- prop.table(n, margin = 1)
+node_summary <- function(mod, i, data, y) {
+  logic <- traverse_logic(mod, i, data, y)
+  rules <- sapply(logic, function(n) node_to_character(n$rule, mod))
 
-  out <- cbind(addmargins(n, 2), pcts[,2])[,c(3,1,2,4)]
-  colnames(out) <- c("Total","# 0s","# 1s","1s Rate")
-  rownames(out) <- c("Not in Node", "In Node")
+  node <- t(sapply(logic, function(x) rowSums(x$n)))
+  perf <- t(sapply(logic, function(x) x$n[,2]))
+  iv <- sapply(logic, "[[", "iv")
+  gain <- iv - c(0, head(iv, -1))
 
-  cat(c(
-    "\nNode Logic",
-    "----------------------",
-    get_node_rules(mod, i),
-    "\nPerformance",
-    "----------------------"),
-    sep="\n")
-  print(out)
+  res <- data.frame(rules)
+  res <- cbind(
+    format(res, justify = "left"),
+    prettyNum(node[,2], big.mark = ","),
+    prettyNum(perf[,2], big.mark = ","),
+    round(perf[,2]/node[,2],  4),
+    round(iv, 4),
+    round(cumsum(gain), 4))
+
+  colnames(res) <- c("Logic", "Node N", "N 1s", "Rate 1s", "IV", "Cuml. Gain")
+  res
 }
-
-

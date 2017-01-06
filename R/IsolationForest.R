@@ -17,7 +17,6 @@ split_on_var.factor <- function(x, ..., idx=integer(32)) {
   s = sample(max(1, 2^(length(l)) - 2), 1)
 
 
-
   i = l[which(intToBits(s) == 1)]
   idx[i] = 1L
   list(value = packBits(idx, type="integer"), filter = x %in% levels(x)[i])
@@ -27,8 +26,7 @@ split_on_var.factor <- function(x, ..., idx=integer(32)) {
 # X = data, e = current depth, l = max depth, ni = node index
 recurse <- function(idx, e, l, ni=0, env) {
 
-  ## don't sample dups
-  #browser()
+  ## don't sample columns with all dups
   dups <- sapply(env$X[idx,], function(x) all(duplicated(x)[-1L]))
 
   ## Base case

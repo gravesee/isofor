@@ -1,4 +1,4 @@
-library(isofor)
+Çlibrary(isofor)
 
 data(titanic, package="binnr2")
 x = titanic

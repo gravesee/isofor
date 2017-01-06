@@ -72,7 +72,9 @@ f <- function(mod, nodes, i, y) {
 
 best <- which(!d)[top10]
 
-for (i in best) f(mod, nodes, i, x$Survived)
+bvs <- lapply(best, function(i) {print(i); node_summary(mod, i, x[-1], x$Survived)})
+
+for (i in 1:100)
 
 
 

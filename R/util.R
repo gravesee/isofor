@@ -27,3 +27,9 @@ isofor_demo = function() {
   shiny::runApp(appDir)
 }
 
+
+top_k_distances <- function(q, il, n, k) {
+  .Call("top_k_distances", as.integer(q), il, as.integer(n), as.integer(k))
+}
+
+

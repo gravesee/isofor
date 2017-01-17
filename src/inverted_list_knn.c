@@ -84,6 +84,58 @@ SEXP top_k_distances(SEXP pos, SEXP li, SEXP n, SEXP k) {
   return out;
 }
 
+
+SEXP weighted_nn_perf(SEXP pos, SEXP li, SEXP y) {
+
+  //int N = INTEGER(n)[0];
+  //int K = INTEGER(k)[0];
+
+  // fill the indices with sequences #s
+  //int * indices = malloc(sizeof(int) * N);
+  //for (int i = 0; i < N; i ++) {
+  //  indices[i] = i;
+  //}
+
+  int num_nodes = LENGTH(pos);
+  //Rprintf("Numer of nodes: %d\n", K);
+
+  //int * dists = (int*) calloc(N, sizeof(int));
+  //memset(INTEGER(result), 0, N * sizeof(int));
+
+  double num = 0;
+  double den = 0;
+
+  int * cur;
+  //int * res = INTEGER(result);
+
+  for (int i = 0; i < num_nodes; i++) {
+
+    int idx = INTEGER(pos)[i] - 1;
+
+    cur = INTEGER(VECTOR_ELT(li, idx));
+    int M = LENGTH(VECTOR_ELT(li, idx));
+
+    for (int j = 0; j < M; j++) {
+      num += INTEGER(y)[cur[j] - 1]; den++;
+    }
+  }
+
+  SEXP out = PROTECT(allocVector(REALSXP, 1));
+
+  REAL(out)[0] = num / den;
+
+  //for (int i = 0; i < K; i++){
+  //  INTEGER(out)[i] = indices[i] + 1;
+  //}
+
+  //free(indices);
+  //free(dists);
+  UNPROTECT(1);
+
+  return out;
+}
+
+
 // [[Rcpp::export]]
 // IntegerVector top_k_distances(NumericVector positions, List li, IntegerVector n, IntegerVector k) {
 //

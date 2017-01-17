@@ -27,18 +27,18 @@ split_on_var.factor <- function(x, ..., idx=integer(32)) {
 recurse <- function(idx, e, l, ni=0, env) {
 
   ## don't sample columns with all dups
-  #dups <- sapply(env$X[idx,], function(x) all(duplicated(x)[-1L]))
+  dups <- sapply(env$X[idx,], function(x) all(duplicated(x)[-1L]))
 
   ## Base case
-  #if (e >= l || length(idx) <= 1 || all(dups)) {
-  if (e >= l || length(idx) <= 1) {
+  if (e >= l || length(idx) <= 1 || all(dups)) {
+  #if (e >= l || length(idx) <= 1) {
     env$mat[ni,c("Type", "Size")] <- c(-1, length(idx))
     return()
   }
 
   ## randomly select attribute
-  i = sample(1:NCOL(env$X), 1)
-  #i = sample(which(!dups), 1)
+  #i = sample(1:NCOL(env$X), 1)
+  i = sample(which(!dups), 1)
 
   ## check if factor with <= 32 levels
   res = split_on_var(env$X[idx, i, TRUE])

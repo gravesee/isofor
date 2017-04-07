@@ -13,7 +13,7 @@ predict.iForest <- function(object, newdata, ..., nodes = FALSE, sparse = FALSE)
   if (!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
 
   ## check column types
-  classes = vapply(newdata, class, FUN.VALUE = "")
+  classes = unlist(lapply(newdata, class))
   if (!all(classes %in% c("numeric","factor","integer"))) {
     stop("newdata contains classes other than numeric, factor, and integer")
   }

@@ -1,7 +1,7 @@
 Package: isofor
 Type: Package
 Title: Isolation Forest Anomaly Detection
-Version: 0.1.0
+Version: 0.1.1
 Author: Eric Graves
 Maintainer: Eric Graves <gravcon@gmail.com>
 Description: More about what it does (maybe more than one line)

@@ -110,7 +110,7 @@ iForest <- function(X, nt=100, phi=256) {
   if (!is.data.frame(X)) X <- as.data.frame(X)
 
   # Check that no single factor has > 32 levels
-  factor32 <- sapply(data, function(x) class(x) == "factor" & nlevels(x) > 32)
+  factor32 <- sapply(X, function(x) class(x) == "factor" & nlevels(x) > 32)
   if(sum(factor32) > 0) stop("Can not handle categorical predictors with more than 32 categories.")
 
   forest = vector("list", nt)

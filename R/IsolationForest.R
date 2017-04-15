@@ -88,6 +88,7 @@ iTree <- function(X, l) {
 #' @param X a matrix or data.frame of numeric or factors values
 #' @param nt the number of trees in the ensemble
 #' @param phi the number of samples to draw without replacement to construct each tree
+#' @param seed random seed to ensure creation of reproducible foresets
 #'
 #' @details An Isolation Forest is an unsupervised anomaly detection algorithm. The requested
 #' number of trees, \code{nt}, are built completely at random on a subsample of size \code{phi}.
@@ -104,7 +105,10 @@ iTree <- function(X, l) {
 #' \emph{ACM Trans. Knowl. Discov. Data}, vol. 6, no. 1, pp. 3:1-3:39, Mar. 2012.
 #'
 #' @export
-iForest <- function(X, nt=100, phi=256) {
+iForest <- function(X, nt=100, phi=256, seed=1234) {
+
+  set.seed(seed)
+
   l = ceiling(log(phi, 2))
 
   if (!is.data.frame(X)) X <- as.data.frame(X)

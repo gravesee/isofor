@@ -6,15 +6,17 @@ pathLength <- function(x, Tree, e=0, ni=0) {
 #' @description predict.iForest is a method of the predict generic function.
 #' @param object an \code{iForest} object
 #' @param newdata a dataset to predict
+#' @param multicore true/false value indicating if prediction should be run in parallel
 #' @param type predict can export the anamoly score, a list of nodes, or the terminal nodes
+#' @import parallel
 #' @export
-predict.iForest <- function(object, newdata, ..., nodes = FALSE, sparse = FALSE) {
+predict.iForest <- function(object, newdata, ..., multicore=FALSE, nodes = FALSE, sparse = FALSE) {
 
   if (!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
 
   ## check column types
-  classes = vapply(newdata, class, FUN.VALUE = "")
-  if (!all(classes %in% c("numeric","factor","integer"))) {
+  classes = unlist(lapply(newdata, class))
+  if (!all(classes %in% c("numeric","factor","integer", "ordered"))) {
     stop("newdata contains classes other than numeric, factor, and integer")
   }
 
@@ -31,11 +33,33 @@ predict.iForest <- function(object, newdata, ..., nodes = FALSE, sparse = FALSE)
       paste0(m, collapse = ", ")), width = 80, prefix = " "), call. = F)
   }
 
-  if (sparse) {
-    predict_iForest_sparse_nodes(newdata, object)
-  } else if (nodes) {
-    predict_iForest_nodes_cpp(newdata, object)
+  if(multicore){
+	ncores <- detectCores()
+  	chunks <- split(newdata, (seq(nrow(newdata))-1) %/% round(nrow(newdata)/ncores))
+
+  	cl <- makeCluster(getOption("cl.cores", ncores))
+
+  	if (sparse) {
+    		yh <- parLapply(cl, chunks, predict_iForest_sparse_nodes, object)
+   
+  	} else if (nodes) {
+    		yh <- parLapply(cl, chunks, predict_iForest_nodes_cpp, object) 
+  
+  	} else {
+    		yh <- parLapply(cl, chunks, predict_iForest_pathLength_cpp, object)
+ 
+  	}
+
+	stopCluster(cl)
+  	return(unlist(yh, use.names = FALSE))
   } else {
-    predict_iForest_pathLength_cpp(newdata, object)
-  }
+	  if (sparse){
+		  predict_iForest_sparse_nodes(newdata, object)
+	  } else if (nodes) {
+		  predict_iForest_nodes_cpp(newdata, object)
+	  } else {
+		  predict_iForest_pathLength_cpp(newdata, object)
+	  }
+}
+
 }

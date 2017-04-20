@@ -1,15 +1,14 @@
 Package: isofor
 Type: Package
 Title: Isolation Forest Anomaly Detection
-Version: 0.1.1
-Author: Eric Graves
-Maintainer: Eric Graves <gravcon@gmail.com>
+Version: 0.1.2
+Author: Eric Graves, Ignat Drozdov
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Collate:
     'util.R'
     'IsolationForest.R'
@@ -19,4 +18,5 @@ Collate:
 LinkingTo: Rcpp
 Imports:
     Rcpp,
-    Matrix
+    Matrix,
+    parallel

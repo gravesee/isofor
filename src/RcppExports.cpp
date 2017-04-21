@@ -81,3 +81,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// predict_iterative
+SEXP predict_iterative(SEXP df, List Model);
+RcppExport SEXP isofor_predict_iterative(SEXP dfSEXP, SEXP ModelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< List >::type Model(ModelSEXP);
+    rcpp_result_gen = Rcpp::wrap(predict_iterative(df, Model));
+    return rcpp_result_gen;
+END_RCPP
+}

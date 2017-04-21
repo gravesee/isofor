@@ -48,34 +48,32 @@ int filter_factor(int x, int d) {
 
 // out_mat is passed in from calling function. it will store the calculations
 // start wrtiting into out mat at pos
-void pathlength_iterative(SEXP df, SEXP Tree, double * out_mat, int offset)  {
+void pathlength_iterative(SEXP df, SEXP Tree, double * out_mat, int offset, int * current_node, int * depth)  {
 
   // start with the root node and a vector of the root node position
   int df_nrows = Rf_length(VECTOR_ELT(df, 0));
 
   // create vector to keep track of current child node
-  //Rprintf("Allocating space for current_node and depth\n");
-  int * current_node = (int *) calloc(sizeof(int *), df_nrows);
-  int * depth = (int *) calloc(sizeof(int *), df_nrows);
+  //int * current_node = (int *) calloc(sizeof(int *), df_nrows);
+  //int * depth = (int *) calloc(sizeof(int *), df_nrows);
+
+  for (int i = 0; i < df_nrows; i++) {
+    current_node[i] = 0;
+    depth[i] = 0;
+  }
 
   // get pointer to tree matrix as well as dimensions
   SEXP dims = Rf_getAttrib(Tree, R_DimSymbol);
   int nrows = INTEGER(dims)[0];
 
   // loop over the current node vector and use it to index the tree
-  //Rprintf("Entering while loop\n");
-  bool all_terminal;
+  bool all_terminal = TRUE;
   do {
-    // loop over current_node array
-    all_terminal = TRUE;
 
-    //#pragma omp parallel for
     for (int i = 0; i < df_nrows; ++i) {
 
       int row = current_node[i]; // current tree node
       int type = GET_TREE_ATTR(Tree, Type, row, nrows); // terminal or not?
-
-      ////Rprintf("Row: %d Type: %d\n", row, type);
 
       if (type == 1) {
         all_terminal = FALSE;
@@ -113,32 +111,22 @@ void pathlength_iterative(SEXP df, SEXP Tree, double * out_mat, int offset)  {
 
     }
   }  while(!all_terminal);
-  //Rprintf("Finished while loop\n");
-
 
   for (int i = 0; i < df_nrows; i++) {
-    //Rprintf("Getting tree row number\n");
     int row = current_node[i];
-
-    //Rprintf("Getting size for tree row number\n");
     double size = GET_TREE_ATTR(Tree, Size, row, nrows);
 
-    //Rprintf("Setting matrix value using pos: %d\n", i + offset * df_nrows);
+
     out_mat[i + offset * df_nrows] = depth[i] + cn(size);
-
-    //Rprintf("(%03d, %03d, %2.2f)\n", i, offset, out_mat[i + offset * df_nrows]);
+    Rprintf("(%3d, %3d, %2.2f)", i, offset, i + offset * df_nrows);
   }
-
-  //Rprintf("Freeing data\n");
-  free(current_node);
-  free(depth);
 
 }
 
 // [[Rcpp::export]]
 SEXP predict_iterative(SEXP df, List Model) {
 
-  int df_nrows = LENGTH(VECTOR_ELT(df, 0)); // lenght of first column
+  int df_nrows = LENGTH(VECTOR_ELT(df, 0)); // length of first column
 
 
   // extract pieces from list
@@ -151,21 +139,31 @@ SEXP predict_iterative(SEXP df, List Model) {
   //Rprintf("Allocating memory for pathlengths matrix\n");
   double * pls = (double *) calloc(sizeof(double *), df_nrows * n_trees);
 
-  // now to make this parallel....
+  int * current_node;
+  int * depth;
 
-  // loop is over each tree
-  //Rprintf("Filling matrix\n");
-  #pragma omp parallel for
-  for (int i = 0; i < n_trees; i++) {
-    //Rprintf("Starting column\n");
-    pathlength_iterative(df, forest[i], pls, i); // forest is a matrix
+  #pragma omp parallel private(current_node, depth)
+  {
+
+    current_node = (int *) calloc(sizeof(int *), df_nrows);
+    depth = (int *) calloc(sizeof(int *), df_nrows);
+
+    #pragma omp for
+    for (int i = 0; i < n_trees; i++) {
+      Rprintf("Starting column\n");
+      pathlength_iterative(df, forest[i], pls, i, current_node, depth); // forest is a matrix
+    }
+
+    free(current_node);
+    free(depth);
+
   }
 
   // fill output vector with average path length
   SEXP res;
   PROTECT(res = Rf_allocVector(REALSXP, df_nrows));
 
-  //Rprintf("Filling return vector\n");
+  Rprintf("Filling return vector\n");
   // Calculate the rowMeans of the matrix
   for( int i = 0; i < df_nrows; i++ ) {
 

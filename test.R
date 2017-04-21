@@ -6,7 +6,7 @@ data(titanic, package="binnr")
 
 titanic$Age[is.na(titanic$Age)] <- 0
 
-mod <- iForest(titanic, 100, 32)
+mod <- iForest(titanic, 2, 32)
 
 microbenchmark(
   new = predict(mod, x, iterative = TRUE),
@@ -19,7 +19,7 @@ p2 <- predict(mod, titanic, iterative = FALSE)
 
 x <- titanic
 
-for (i in 1:8) x <- rbind(x, x)
+for (i in 1:3) x <- rbind(x, x)
 
 
 

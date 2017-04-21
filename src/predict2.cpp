@@ -24,12 +24,11 @@ int filter_numeric(double x, double val) {
   return x < val ? Left : Right;
 }
 
-
 int filter_factor(int x, int d) {
 
   // turn value into a bitset
   std::bitset<32> bs(d);
-  int * res = (int *) calloc(sizeof(int *), bs.count());
+  int * res = (int *) calloc(bs.count(), sizeof(int *));
 
     // return array of which factor levels are store in `d`
   bool matches_any = FALSE;
@@ -137,7 +136,7 @@ SEXP predict_iterative(SEXP df, List Model) {
   double avg = cn(phi);
 
   //Rprintf("Allocating memory for pathlengths matrix\n");
-  double * pls = (double *) calloc(sizeof(double *), df_nrows * n_trees);
+  double * pls = (double *) calloc(df_nrows * n_trees, sizeof pls);
 
   int * current_node;
   int * depth;
@@ -145,8 +144,8 @@ SEXP predict_iterative(SEXP df, List Model) {
   #pragma omp parallel private(current_node, depth)
   {
 
-    current_node = (int *) calloc(sizeof(int *), df_nrows);
-    depth = (int *) calloc(sizeof(int *), df_nrows);
+    current_node = (int *) calloc(df_nrows, sizeof current_node);
+    depth = (int *) calloc(df_nrows, sizeof depth);
 
     #pragma omp for
     for (int i = 0; i < n_trees; i++) {
@@ -154,9 +153,9 @@ SEXP predict_iterative(SEXP df, List Model) {
       pathlength_iterative(df, forest[i], pls, i, current_node, depth); // forest is a matrix
     }
 
+
     free(current_node);
     free(depth);
-
   }
 
   // fill output vector with average path length

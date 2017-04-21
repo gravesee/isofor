@@ -12,8 +12,6 @@ microbenchmark(
   new = predict(mod, x, iterative = TRUE),
   old = predict(mod, x, iterative = FALSE), times=5L)
 
-
-
 p1 <- predict(mod, titanic, iterative = TRUE)
 p2 <- predict(mod, titanic, iterative = FALSE)
 

@@ -72,6 +72,7 @@ void pathlength_iterative(SEXP df, SEXP Tree, double * out_mat, int offset, int 
     
     all_terminal = TRUE;
 
+    //#pragma omp parallel for
     for (int i = 0; i < df_nrows; ++i) {
       
       int row = current_node[i]; // current tree node
@@ -120,6 +121,7 @@ void pathlength_iterative(SEXP df, SEXP Tree, double * out_mat, int offset, int 
   
   //Rprintf("Exiting Loop\n");
 
+  #pragma omp parallel for
   for (int i = 0; i < df_nrows; i++) {
     
     double size = GET_TREE_ATTR(Tree, Size, current_node[i], nrows);
@@ -168,10 +170,11 @@ SEXP predict_iterative(SEXP df, List Model) {
 
   //Rprintf("Filling return vector\n");
   // Calculate the rowMeans of the matrix
+  #pragma omp parallel for
   for( int i = 0; i < df_nrows; i++ ) {
-
-
     double tmp = 0;
+    
+    #pragma omp parallel for reduction(+:tmp)
     for (int j = 0; j < n_trees; j++) {
       tmp += pls[i + df_nrows * j];
     }

@@ -105,7 +105,7 @@ iTree <- function(X, l) {
 #' \emph{ACM Trans. Knowl. Discov. Data}, vol. 6, no. 1, pp. 3:1-3:39, Mar. 2012.
 #'
 #' @export
-iForest <- function(X, nt=100, phi=256, seed=1234) {
+iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE) {
 
   set.seed(seed)
 
@@ -116,11 +116,25 @@ iForest <- function(X, nt=100, phi=256, seed=1234) {
   # Check that no single factor has > 32 levels
   factor32 <- sapply(X, function(x) class(x) == "factor" & nlevels(x) > 32)
   if(sum(factor32) > 0) stop("Can not handle categorical predictors with more than 32 categories.")
-
-  forest = vector("list", nt)
-  for (i in 1:nt) {
-    s = sample(nrow(X), phi)
-    forest[[i]] = iTree(X[s,], l)
+  
+  if (multicore) {
+    ncores <- detectCores()
+  
+    sample_dfs <- replicate(nt, {X[sample(nrow(X), phi),]}, simplify = F)
+    cl <- makeCluster(getOption("cl.cores", ncores))
+    ##clusterExport(cl ,c('dpert','variable'))
+    
+    forest <- parLapply(cl, sample_dfs, iTree, l)
+    
+    stopCluster(cl)
+  } else {
+    
+    forest <- vector("list", nt)
+    for (i in 1:nt) {
+      s <- sample(nrow(X), phi)
+      forest[[i]] <- iTree(X[s,], l)
+    }
+    
   }
 
   structure(

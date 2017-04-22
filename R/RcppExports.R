@@ -5,16 +5,8 @@ bit_count <- function(a, b) {
     .Call('isofor_bit_count', PACKAGE = 'isofor', a, b)
 }
 
-pathLength_cpp <- function(x, Tree, e, ni) {
-    .Call('isofor_pathLength_cpp', PACKAGE = 'isofor', x, Tree, e, ni)
-}
-
 nodes_cpp <- function(x, Tree, e, ni) {
     .Call('isofor_nodes_cpp', PACKAGE = 'isofor', x, Tree, e, ni)
-}
-
-predict_iForest_pathLength_cpp <- function(x, Model) {
-    .Call('isofor_predict_iForest_pathLength_cpp', PACKAGE = 'isofor', x, Model)
 }
 
 predict_iForest_nodes_cpp <- function(x, Model) {
@@ -25,7 +17,7 @@ predict_iForest_sparse_nodes <- function(x, Model) {
     .Call('isofor_predict_iForest_sparse_nodes', PACKAGE = 'isofor', x, Model)
 }
 
-predict_iterative <- function(df, Model) {
-    .Call('isofor_predict_iterative', PACKAGE = 'isofor', df, Model)
+predict_iForest_pathlength_cpp <- function(df, Model, n_cores) {
+    .Call('isofor_predict_iForest_pathlength_cpp', PACKAGE = 'isofor', df, Model, n_cores)
 }
 

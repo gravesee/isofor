@@ -17,20 +17,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// pathLength_cpp
-NumericVector pathLength_cpp(DataFrame x, NumericMatrix Tree, double e, int ni);
-RcppExport SEXP isofor_pathLength_cpp(SEXP xSEXP, SEXP TreeSEXP, SEXP eSEXP, SEXP niSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< DataFrame >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type Tree(TreeSEXP);
-    Rcpp::traits::input_parameter< double >::type e(eSEXP);
-    Rcpp::traits::input_parameter< int >::type ni(niSEXP);
-    rcpp_result_gen = Rcpp::wrap(pathLength_cpp(x, Tree, e, ni));
-    return rcpp_result_gen;
-END_RCPP
-}
 // nodes_cpp
 IntegerVector nodes_cpp(DataFrame x, NumericMatrix Tree, double e, int ni);
 RcppExport SEXP isofor_nodes_cpp(SEXP xSEXP, SEXP TreeSEXP, SEXP eSEXP, SEXP niSEXP) {
@@ -42,18 +28,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type e(eSEXP);
     Rcpp::traits::input_parameter< int >::type ni(niSEXP);
     rcpp_result_gen = Rcpp::wrap(nodes_cpp(x, Tree, e, ni));
-    return rcpp_result_gen;
-END_RCPP
-}
-// predict_iForest_pathLength_cpp
-NumericVector predict_iForest_pathLength_cpp(DataFrame x, List Model);
-RcppExport SEXP isofor_predict_iForest_pathLength_cpp(SEXP xSEXP, SEXP ModelSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< DataFrame >::type x(xSEXP);
-    Rcpp::traits::input_parameter< List >::type Model(ModelSEXP);
-    rcpp_result_gen = Rcpp::wrap(predict_iForest_pathLength_cpp(x, Model));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -81,15 +55,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// predict_iterative
-SEXP predict_iterative(SEXP df, List Model);
-RcppExport SEXP isofor_predict_iterative(SEXP dfSEXP, SEXP ModelSEXP) {
+// predict_iForest_pathlength_cpp
+SEXP predict_iForest_pathlength_cpp(SEXP df, List Model, SEXP n_cores);
+RcppExport SEXP isofor_predict_iForest_pathlength_cpp(SEXP dfSEXP, SEXP ModelSEXP, SEXP n_coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type df(dfSEXP);
     Rcpp::traits::input_parameter< List >::type Model(ModelSEXP);
-    rcpp_result_gen = Rcpp::wrap(predict_iterative(df, Model));
+    Rcpp::traits::input_parameter< SEXP >::type n_cores(n_coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(predict_iForest_pathlength_cpp(df, Model, n_cores));
     return rcpp_result_gen;
 END_RCPP
 }

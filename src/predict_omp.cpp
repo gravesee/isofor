@@ -40,7 +40,7 @@ int filter_factor(int x, int d) {
 
 // out_mat is passed in from calling function. it will store the calculations
 // start wrtiting into out mat at pos
-void pathlength_iterative(SEXP df, SEXP Tree, double * out_mat, int offset, int * current_node, int * depth)  {
+void predict_pathlength_cpp(SEXP df, SEXP Tree, double * out_mat, int offset, int * current_node, int * depth)  {
   
   int df_nrows = Rf_length(VECTOR_ELT(df, 0));
   
@@ -103,7 +103,7 @@ void pathlength_iterative(SEXP df, SEXP Tree, double * out_mat, int offset, int 
 }
 
 // [[Rcpp::export]]
-SEXP predict_iterative(SEXP df, List Model) {
+SEXP predict_iForest_pathlength_cpp(SEXP df, List Model, SEXP n_cores) {
 
   int df_nrows = LENGTH(VECTOR_ELT(df, 0)); // length of first column
 
@@ -114,7 +114,7 @@ SEXP predict_iterative(SEXP df, List Model) {
 
   double * pls = (double *) calloc(df_nrows * n_trees, sizeof pls); // matrix of path lengths
   
-  #pragma omp parallel
+  #pragma omp parallel num_threads(INTEGER(n_cores)[1])
   {
 
     int * current_node = (int *) calloc(df_nrows, sizeof current_node);
@@ -122,7 +122,7 @@ SEXP predict_iterative(SEXP df, List Model) {
 
     #pragma omp for
     for (int i = 0; i < n_trees; i++) {
-      pathlength_iterative(df, forest[i], pls, i, current_node, depth); // forest is a matrix
+      predict_pathlength_cpp(df, forest[i], pls, i, current_node, depth); // forest is a matrix
     }
 
     #pragma omp critical // not sure this is needed

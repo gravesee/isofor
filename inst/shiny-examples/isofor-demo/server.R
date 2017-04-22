@@ -22,7 +22,7 @@ shinyServer(function(input, output) {
   })
 
   p = reactive({
-    predict(mod(), d)
+    predict(mod(), d, iterative=TRUE)
   })
 
   output$Score <- renderPlot({
@@ -32,7 +32,7 @@ shinyServer(function(input, output) {
   })
 
   output$Depth <- renderPlot({
-    p = predict(mod(), ex)
+    p = predict(mod(), ex, iterative=TRUE)
     plt = cbind(ex, z=p)
     lattice::contourplot(z~x+y, plt, cuts=10, labels=TRUE, region=TRUE)
   })

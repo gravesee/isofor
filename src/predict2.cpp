@@ -28,9 +28,9 @@ int filter_factor(int x, int d) {
 
   // turn value into a bitset
   std::bitset<32> bs(d);
-  int * res = (int *) calloc(bs.count(), sizeof(int *));
+  int * res = (int *) calloc(bs.count(), sizeof res);
 
-    // return array of which factor levels are store in `d`
+  // return array of which factor levels are store in `d`
   bool matches_any = FALSE;
   for (size_t i = 0; i < bs.size(); i++){
     if (bs[i] == 1 && x == (i + 1)) {
@@ -56,6 +56,7 @@ void pathlength_iterative(SEXP df, SEXP Tree, double * out_mat, int offset, int 
   //int * current_node = (int *) calloc(sizeof(int *), df_nrows);
   //int * depth = (int *) calloc(sizeof(int *), df_nrows);
 
+  // set to zero
   for (int i = 0; i < df_nrows; i++) {
     current_node[i] = 0;
     depth[i] = 0;
@@ -66,11 +67,13 @@ void pathlength_iterative(SEXP df, SEXP Tree, double * out_mat, int offset, int 
   int nrows = INTEGER(dims)[0];
 
   // loop over the current node vector and use it to index the tree
-  bool all_terminal = TRUE;
+  bool all_terminal;
   do {
+    
+    all_terminal = TRUE;
 
     for (int i = 0; i < df_nrows; ++i) {
-
+      
       int row = current_node[i]; // current tree node
       int type = GET_TREE_ATTR(Tree, Type, row, nrows); // terminal or not?
 
@@ -78,6 +81,8 @@ void pathlength_iterative(SEXP df, SEXP Tree, double * out_mat, int offset, int 
         all_terminal = FALSE;
         depth[i] += 1;
 
+        //Rprintf("i =%d, depth =%d, row =%d\n", i, depth[i], row);
+        
         // split characteristics
         int s_attr = GET_TREE_ATTR(Tree, SplitAtt, row, nrows) - 1;
         double s_value = GET_TREE_ATTR(Tree, SplitValue, row, nrows);
@@ -107,17 +112,20 @@ void pathlength_iterative(SEXP df, SEXP Tree, double * out_mat, int offset, int 
         };
 
       }
+      
+      //Rprintf("terminal node found\n");
 
     }
   }  while(!all_terminal);
+  
+  //Rprintf("Exiting Loop\n");
 
   for (int i = 0; i < df_nrows; i++) {
-    int row = current_node[i];
-    double size = GET_TREE_ATTR(Tree, Size, row, nrows);
-
-
+    
+    double size = GET_TREE_ATTR(Tree, Size, current_node[i], nrows);
+    
+    //Rprintf("(%3d, %3d, %2.2f)", i, offset, i + offset * df_nrows);
     out_mat[i + offset * df_nrows] = depth[i] + cn(size);
-    Rprintf("(%3d, %3d, %2.2f)", i, offset, i + offset * df_nrows);
   }
 
 }
@@ -126,7 +134,6 @@ void pathlength_iterative(SEXP df, SEXP Tree, double * out_mat, int offset, int 
 SEXP predict_iterative(SEXP df, List Model) {
 
   int df_nrows = LENGTH(VECTOR_ELT(df, 0)); // length of first column
-
 
   // extract pieces from list
   int n_trees = Rcpp::as<int>(Model[NTREES]);
@@ -137,23 +144,20 @@ SEXP predict_iterative(SEXP df, List Model) {
 
   //Rprintf("Allocating memory for pathlengths matrix\n");
   double * pls = (double *) calloc(df_nrows * n_trees, sizeof pls);
-
-  int * current_node;
-  int * depth;
-
-  #pragma omp parallel private(current_node, depth)
+  
+  #pragma omp parallel
   {
 
-    current_node = (int *) calloc(df_nrows, sizeof current_node);
-    depth = (int *) calloc(df_nrows, sizeof depth);
+    int * current_node = (int *) calloc(df_nrows, sizeof current_node);
+    int * depth = (int *) calloc(df_nrows, sizeof depth);
 
     #pragma omp for
     for (int i = 0; i < n_trees; i++) {
-      Rprintf("Starting column\n");
+      //Rprintf("Starting column\n");
       pathlength_iterative(df, forest[i], pls, i, current_node, depth); // forest is a matrix
     }
 
-
+    #pragma omp critical // not sure this is needed
     free(current_node);
     free(depth);
   }
@@ -162,7 +166,7 @@ SEXP predict_iterative(SEXP df, List Model) {
   SEXP res;
   PROTECT(res = Rf_allocVector(REALSXP, df_nrows));
 
-  Rprintf("Filling return vector\n");
+  //Rprintf("Filling return vector\n");
   // Calculate the rowMeans of the matrix
   for( int i = 0; i < df_nrows; i++ ) {
 

@@ -2,7 +2,7 @@
 library(isofor)
 library(microbenchmark)
 
-data(titanic, package="binnr")
+data(titanic, package="binnr2")
 
 titanic$Age[is.na(titanic$Age)] <- 0
 

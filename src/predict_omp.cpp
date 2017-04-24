@@ -40,26 +40,26 @@ int filter_factor(int x, int d) {
 
 // out_mat is passed in from calling function. it will store the calculations
 // start wrtiting into out mat at pos
-void predict_pathlength_cpp(SEXP df, SEXP Tree, double * out_mat, int offset, int * current_node, int * depth)  {
-  
+void predict_pathlength_cpp(SEXP df, SEXP Tree, double * out_mat, int offset, int * current_node, int * depth, int n_trees)  {
+
   int df_nrows = Rf_length(VECTOR_ELT(df, 0));
-  
+
   // clear temporary arrays
   memset(current_node, 0, df_nrows*sizeof(current_node));
   memset(depth, 0, df_nrows*sizeof(depth));
-  
+
   int nrows = INTEGER(Rf_getAttrib(Tree, R_DimSymbol))[0]; // number of rows in the tree matrix
 
   // loop over the current node vector and use it to index the tree
   bool all_terminal;
   do {
-    
+
     all_terminal = TRUE;
 
     //#pragma omp parallel for
     for (int i = 0; i < df_nrows; ++i) {
       int row = current_node[i]; // current tree node
-      
+
       if (GET_TREE_ATTR(Tree, Type, row, nrows) == 1) { // check if terminal
         all_terminal = FALSE;
         depth[i] += 1;
@@ -94,11 +94,12 @@ void predict_pathlength_cpp(SEXP df, SEXP Tree, double * out_mat, int offset, in
       }
     }
   }  while(!all_terminal);
-  
+
   #pragma omp parallel for
   for (int i = 0; i < df_nrows; i++) {
     double size = GET_TREE_ATTR(Tree, Size, current_node[i], nrows);
-    out_mat[i + offset * df_nrows] = depth[i] + cn(size);
+    //out_mat[i + offset * df_nrows] = depth[i] + cn(size);
+    out_mat[i] += (depth[i] + cn(size)) / n_trees;
   }
 }
 
@@ -112,8 +113,10 @@ SEXP predict_iForest_pathlength_cpp(SEXP df, List Model, SEXP n_cores) {
   double phi = Rcpp::as<double>(Model[PHI]);
   List forest = Rcpp::as<List>(Model[FOREST]);
 
-  double * pls = (double *) calloc(df_nrows * n_trees, sizeof pls); // matrix of path lengths
-  
+  // TODO: only need to allocation a vector here. Don't need a matrix
+  //double * pls = (double *) calloc(df_nrows * n_trees, sizeof pls); // matrix of path lengths
+  double * pl = (double *) calloc(df_nrows, sizeof pl);
+
   #pragma omp parallel num_threads(INTEGER(n_cores)[1])
   {
 
@@ -122,7 +125,8 @@ SEXP predict_iForest_pathlength_cpp(SEXP df, List Model, SEXP n_cores) {
 
     #pragma omp for
     for (int i = 0; i < n_trees; i++) {
-      predict_pathlength_cpp(df, forest[i], pls, i, current_node, depth); // forest is a matrix
+      //predict_pathlength_cpp(df, forest[i], pls, i, current_node, depth, n_trees); // forest is a matrix
+      predict_pathlength_cpp(df, forest[i], pl, i, current_node, depth, n_trees); // forest is a matrix
     }
 
     #pragma omp critical // not sure this is needed
@@ -132,22 +136,23 @@ SEXP predict_iForest_pathlength_cpp(SEXP df, List Model, SEXP n_cores) {
 
   SEXP res;
   PROTECT(res = Rf_allocVector(REALSXP, df_nrows));
-  
+
   // Calculate the average pathlenths for every observation
   double avg = cn(phi);
   #pragma omp parallel for
   for( int i = 0; i < df_nrows; i++ ) {
-    double tmp = 0;
-    
-    #pragma omp parallel for reduction(+:tmp)
-    for (int j = 0; j < n_trees; j++) {
-      tmp += pls[i + df_nrows * j];
-    }
-    tmp = tmp / n_trees;
-    REAL(res)[i] = pow(2,  -1 * tmp / avg);
+    // double tmp = 0;
+    //
+    // #pragma omp parallel for reduction(+:tmp)
+    // for (int j = 0; j < n_trees; j++) {
+    //   tmp += pls[i + df_nrows * j];
+    // }
+    // tmp = tmp / n_trees;
+    REAL(res)[i] = pow(2,  -1 * pl[i] / avg);
   }
 
-  free(pls);
+  //free(pls);
+  free(pl);
   UNPROTECT(1);
   return res;
 }

@@ -2,13 +2,14 @@
 library(isofor)
 library(microbenchmark)
 
-data(titanic, package="binnr2")
+data(titanic, package="binnr")
 
 titanic$Age[is.na(titanic$Age)] <- 0
 
-microbenchmark(
-  new=iForest(titanic, 100, 256, multicore = TRUE),
-  old=iForest(titanic, 100, 256, multicore = FALSE), times = 5L)
+mod <- iForest(titanic, 500, 32)
+mod <- iForest(mtcars, 2, 8)
+
+p1 <- predict(mod, titanic, iterative = TRUE)
 
 microbenchmark(
   new = predict(mod, x, iterative = TRUE),
@@ -18,9 +19,11 @@ p1 <- predict(mod, titanic, iterative = TRUE)
 p2 <- predict(mod, titanic, iterative = FALSE)
 
 x <- titanic
-for (i in 1:3) x <- rbind(x, x)
 
+for (i in 1:10) x <- rbind(x, x)
 
+mod <- iForest(x, 500, 64, multicore = TRUE)
+p1 <- predict(mod, x, n.cores = 4)
 
 
 x <- mtcars

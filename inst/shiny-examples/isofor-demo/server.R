@@ -22,7 +22,7 @@ shinyServer(function(input, output) {
   })
 
   p = reactive({
-    predict(mod(), d, iterative=TRUE)
+    predict(mod(), d, n.cores=4L)
   })
 
   output$Score <- renderPlot({

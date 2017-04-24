@@ -1,17 +1,24 @@
-pathLength <- function(x, Tree, e=0, ni=0) {
-  pathLength_cpp(x, Tree, e=0, ni=0)
-}
-
 #' @title predcit.iForest
-#' @description predict.iForest is a method of the predict generic function.
+#' @description return predictions of various types for the isolation forest
+#' object
 #' @param object an \code{iForest} object
 #' @param newdata a dataset to predict
-#' @param multicore true/false value indicating if prediction should be run in parallel
-#' @param type predict can export the anomaly score, a list of nodes, or the terminal nodes
-#' @import parallel
+#' @param n.cores number of cores to use for prediction of anomaly score. Must
+#' be compiled with openmp. Defaults to 1.
+#' @param nodes if true return nobs x ntrees dim matrix with terminal node ids
+#' @param sparse if true return sparse Matrix of dimension nobs x nTerminalNodes.
+#' Each column represents a terminal node. There are as many ones in each row
+#' as there are trees in the forest. Each observation can only belong to one
+#' terminal node per tree. Useful for further modeling or to identify predictive
+#' interactions.
+#' @details By default the predict function returns an anomaly score. The
+#' anomaly score is a [0,1] scaled measure of isolation. Higher scores
+#' correspond to more isolated observations. If sparse or nodes are set to TRUE,
+#' a matrix of the requested type is returned.
+#' @import Matrix
 #' @export
-predict.iForest <- function(object, newdata, ..., nodes = FALSE, sparse = FALSE,
-                            n.cores=1) {
+predict.iForest <- function(object, newdata, ..., n.cores=1, nodes = FALSE,
+  sparse = FALSE) {
 
   if (!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
 
@@ -34,33 +41,13 @@ predict.iForest <- function(object, newdata, ..., nodes = FALSE, sparse = FALSE,
       paste0(m, collapse = ", ")), width = 80, prefix = " "), call. = F)
   }
 
-#   if(multicore && !iterative){
-# 	ncores <- detectCores()
-#   	chunks <- split(newdata, (seq(nrow(newdata))-1) %/% round(nrow(newdata)/ncores))
-# 
-#   	cl <- makeCluster(getOption("cl.cores", ncores))
-# 
-#   	if (sparse) {
-#     		yh <- parLapply(cl, chunks, predict_iForest_sparse_nodes, object)
-# 
-#   	} else if (nodes) {
-#     		yh <- parLapply(cl, chunks, predict_iForest_nodes_cpp, object)
-# 
-#   	} else {
-#     		yh <- parLapply(cl, chunks, predict_iForest_pathLength_cpp, object)
-# 
-#   	}
-
-	# stopCluster(cl)
-  	# return(unlist(yh, use.names = FALSE))
-  
-    if (sparse){
-		  predict_iForest_sparse_nodes(newdata, object)
-	  } else if (nodes) {
-		  predict_iForest_nodes_cpp(newdata, object)
-	  } else {
-	    num_cores = as.integer(min(1, max(n.cores, parallel::detectCores())))
-	    
-	    predict_iForest_pathlength_cpp(newdata, object, num_cores)
-	  }
+  ## dispatch to requested prediction method
+  if (sparse){
+	  predict_iForest_sparse_nodes(newdata, object)
+  } else if (nodes) {
+	  predict_iForest_nodes_cpp(newdata, object)
+  } else {
+    num_cores = as.integer(max(1, min(n.cores, parallel::detectCores())))
+    predict_iForest_pathlength_cpp(newdata, object, num_cores)
+  }
 }

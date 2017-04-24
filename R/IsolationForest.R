@@ -116,33 +116,33 @@ iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE) {
   # Check that no single factor has > 32 levels
   factor32 <- sapply(X, function(x) class(x) == "factor" & nlevels(x) > 32)
   if(sum(factor32) > 0) stop("Can not handle categorical predictors with more than 32 categories.")
-  
+
   if (multicore) {
     ncores <- detectCores()
-  
+
     sample_dfs <- replicate(nt, {X[sample(nrow(X), phi),]}, simplify = F)
     cl <- makeCluster(getOption("cl.cores", ncores))
     ##clusterExport(cl ,c('dpert','variable'))
-    
+
     forest <- parLapply(cl, sample_dfs, iTree, l)
-    
+
     stopCluster(cl)
   } else {
-    
+
     forest <- vector("list", nt)
     for (i in 1:nt) {
       s <- sample(nrow(X), phi)
       forest[[i]] <- iTree(X[s,], l)
     }
-    
+
   }
 
   structure(
     list(
       forest  = forest,
-      phi     = phi,
+      phi     = as.integer(phi),
       l       = l,
-      nTrees  = nt,
+      nTrees  = as.integer(nt),
       nVars   = NCOL(X),
       nTerm   = sapply(forest, function(t) max(t[,"TerminalID"])),
       vNames  = colnames(X),

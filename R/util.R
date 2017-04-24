@@ -26,14 +26,3 @@ isofor_demo = function() {
   appDir = system.file("shiny-examples", "isofor-demo", package = "isofor")
   shiny::runApp(appDir)
 }
-
-
-top_k_distances <- function(q, il, n, k) {
-  .Call("top_k_distances", as.integer(q), il, as.integer(n), as.integer(k))
-}
-
-weighted_nn_perf <- function(q, il, y) {
-  .Call("weighted_nn_perf", as.integer(q), il, as.integer(y))
-}
-
-

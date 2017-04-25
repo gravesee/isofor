@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Zelazny7/isofor.svg?branch=master)](https://travis-ci.org/Zelazny7/isofor)
+
 Isolation Forest
 ----------------
 

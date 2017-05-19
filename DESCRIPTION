@@ -12,12 +12,13 @@ License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
-Collate:
+Collate: 
     'util.R'
     'IsolationForest.R'
     'RcppExports.R'
     'interpret.R'
     'predict.R'
+    'sas.R'
 LinkingTo: Rcpp
 Imports:
     Rcpp,

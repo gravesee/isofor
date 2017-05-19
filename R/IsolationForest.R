@@ -89,7 +89,10 @@ iTree <- function(X, l) {
 #' @param nt the number of trees in the ensemble
 #' @param phi the number of samples to draw without replacement to construct each tree
 #' @param seed random seed to ensure creation of reproducible foresets
-#'
+#' @mulicore fit trees using the parallel package
+#' @replace_missing if TRUE, replaces missing factor levels with "." and missing
+#' numeric values with the \code{sentinel} argument
+#' @sentinel value to use as stand-in for missing numeric values
 #' @details An Isolation Forest is an unsupervised anomaly detection algorithm. The requested
 #' number of trees, \code{nt}, are built completely at random on a subsample of size \code{phi}.
 #' At each node a random variable is selected. A random split is chosen from the range of that
@@ -105,7 +108,8 @@ iTree <- function(X, l) {
 #' \emph{ACM Trans. Knowl. Discov. Data}, vol. 6, no. 1, pp. 3:1-3:39, Mar. 2012.
 #'
 #' @export
-iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE) {
+iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE,
+  replace_missing=TRUE, sentinel=-9999999999) {
 
   set.seed(seed)
 
@@ -113,9 +117,27 @@ iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE) {
 
   if (!is.data.frame(X)) X <- as.data.frame(X)
 
+  ## impute missing values
+  if (replace_missing) {
+    for (i in seq_along(X)) {
+      if (is.numeric(X[[i]])) {
+        X[[i]][is.na(X[[i]])] <- sentinel
+      } else if (is.factor(X[[i]])) {
+        levels(X[[i]]) <- c(levels(X[[i]]), ".")
+        X[[i]][is.na(X[[i]])] <- "."
+      }
+    }
+  }
+
+
+
   # Check that no single factor has > 32 levels
   factor32 <- sapply(X, function(x) class(x) == "factor" & nlevels(x) > 32)
   if(sum(factor32) > 0) stop("Can not handle categorical predictors with more than 32 categories.")
+
+  ## check for missing values
+  na.cols <- sapply(X, function(col) any(is.na(col)))
+  if (any(na.cols)) stop("Missing values found in: ", paste0(names(X[na.cols]), collapse = ", "))
 
   if (multicore) {
     ncores <- detectCores()

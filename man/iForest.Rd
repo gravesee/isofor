@@ -4,7 +4,8 @@
 \alias{iForest}
 \title{iForest}
 \usage{
-iForest(X, nt = 100, phi = 256, seed = 1234)
+iForest(X, nt = 100, phi = 256, seed = 1234, multicore = FALSE,
+  replace_missing = TRUE, sentinel = -9999999999)
 }
 \arguments{
 \item{X}{a matrix or data.frame of numeric or factors values}

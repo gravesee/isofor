@@ -1,5 +1,5 @@
 ## convert isolation forest to sas code
-recurse <- function(t, d=1) {
+recurse_sas <- function(t, d=1) {
   ## base case
   if (t[d,'Type'] == -1) {
     return(list(size=t[d,'Size'], leaf=TRUE))
@@ -11,8 +11,8 @@ recurse <- function(t, d=1) {
       att=t[d,'SplitAtt'],
       val=t[d,'SplitValue'],
       children = list(
-        left=recurse(t,  t[d,'Left']),
-        right=recurse(t,  t[d,'Right'])
+        left=recurse_sas(t,  t[d,'Left']),
+        right=recurse_sas(t,  t[d,'Right'])
         )
       )
     )
@@ -20,7 +20,7 @@ recurse <- function(t, d=1) {
 }
 
 get_tree_data <- function(mod) {
-  lapply(mod$forest, recurse)
+  lapply(mod$forest, recurse_sas)
 }
 
 .s <- function(n) {
@@ -95,7 +95,7 @@ isofor_to_sas <- function(mod, pfx="iso", nt=NULL) {
 
   code <- list()
   for (i in seq.int(nt)) {
-    td <- recurse(mod$forest[[i]]) ## tree data
+    td <- recurse_sas(mod$forest[[i]]) ## tree data
     code[[i]] <- c(
       sprintf("\n/*** Tree: %d ***/", i),
       iso_tree_to_sas(td, mod, pfx=pfx, i))
@@ -104,14 +104,7 @@ isofor_to_sas <- function(mod, pfx="iso", nt=NULL) {
   avg <- cn(mod$phi)
   c(unlist(code),
     sprintf("\n%s_avg_path_length = sum(of: %s_size_:) / %d;", pfx, pfx, nt),
-    sprintf("%s_anomaly_score = 2 ** (-1 * %s_avg_path_length) / %f;",
+    sprintf("%s_anomaly_score = 2 ** ((-1 * %s_avg_path_length) / %f);",
       pfx, pfx, avg)
   )
 }
-
-sas_code <- isofor_to_sas(mod)
-
-
-
-
-

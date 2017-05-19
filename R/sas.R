@@ -78,7 +78,7 @@ iso_tree_to_sas <- function(l, mod, pfx="iso", i=0, d=0) {
   return(
     c(code,
       iso_tree_to_sas(l$children$left, mod, pfx, i, d+1),
-        Sprintf("else do;", depth=d),
+        Sprintf("end; else do;", depth=d),
       iso_tree_to_sas(l$children$right, mod, pfx, i, d+1),
         Sprintf("end;", depth=d)
     ))
@@ -103,7 +103,7 @@ isofor_to_sas <- function(mod, pfx="iso", nt=NULL) {
 
   avg <- cn(mod$phi)
   c(unlist(code),
-    sprintf("\n%s_avg_path_length = sum(of: %s_size_:) / %d;", pfx, pfx, nt),
+    sprintf("\n%s_avg_path_length = sum(of %s_size_:) / %d;", pfx, pfx, nt),
     sprintf("%s_anomaly_score = 2 ** ((-1 * %s_avg_path_length) / %f);",
       pfx, pfx, avg)
   )

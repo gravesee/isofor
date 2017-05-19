@@ -89,10 +89,10 @@ iTree <- function(X, l) {
 #' @param nt the number of trees in the ensemble
 #' @param phi the number of samples to draw without replacement to construct each tree
 #' @param seed random seed to ensure creation of reproducible foresets
-#' @mulicore fit trees using the parallel package
-#' @replace_missing if TRUE, replaces missing factor levels with "." and missing
+#' @param mulicore fit trees using the parallel package
+#' @param replace_missing if TRUE, replaces missing factor levels with "." and missing
 #' numeric values with the \code{sentinel} argument
-#' @sentinel value to use as stand-in for missing numeric values
+#' @param sentinel value to use as stand-in for missing numeric values
 #' @details An Isolation Forest is an unsupervised anomaly detection algorithm. The requested
 #' number of trees, \code{nt}, are built completely at random on a subsample of size \code{phi}.
 #' At each node a random variable is selected. A random split is chosen from the range of that
@@ -128,8 +128,6 @@ iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE,
       }
     }
   }
-
-
 
   # Check that no single factor has > 32 levels
   factor32 <- sapply(X, function(x) class(x) == "factor" & nlevels(x) > 32)

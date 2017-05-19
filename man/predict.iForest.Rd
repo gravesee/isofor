@@ -5,7 +5,7 @@
 \title{predcit.iForest}
 \usage{
 \method{predict}{iForest}(object, newdata, ..., n.cores = 1, nodes = FALSE,
-  sparse = FALSE)
+  sparse = FALSE, replace_missing = TRUE, sentinel = -9999999999)
 }
 \arguments{
 \item{object}{an \code{iForest} object}

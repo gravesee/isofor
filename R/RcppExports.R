@@ -2,18 +2,22 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 nodes_cpp <- function(x, Tree, e, ni) {
-    .Call('isofor_nodes_cpp', PACKAGE = 'isofor', x, Tree, e, ni)
+    .Call('_isofor_nodes_cpp', PACKAGE = 'isofor', x, Tree, e, ni)
 }
 
 predict_iForest_nodes_cpp <- function(x, Model) {
-    .Call('isofor_predict_iForest_nodes_cpp', PACKAGE = 'isofor', x, Model)
+    .Call('_isofor_predict_iForest_nodes_cpp', PACKAGE = 'isofor', x, Model)
 }
 
 predict_iForest_sparse_nodes <- function(x, Model) {
-    .Call('isofor_predict_iForest_sparse_nodes', PACKAGE = 'isofor', x, Model)
+    .Call('_isofor_predict_iForest_sparse_nodes', PACKAGE = 'isofor', x, Model)
 }
 
 predict_iForest_pathlength_cpp <- function(df, Model, n_cores) {
-    .Call('isofor_predict_iForest_pathlength_cpp', PACKAGE = 'isofor', df, Model, n_cores)
+    .Call('_isofor_predict_iForest_pathlength_cpp', PACKAGE = 'isofor', df, Model, n_cores)
+}
+
+top_k_distances <- function(pos, li, n, k) {
+    .Call('_isofor_top_k_distances', PACKAGE = 'isofor', pos, li, n, k)
 }
 

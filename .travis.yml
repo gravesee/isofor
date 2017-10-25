@@ -7,3 +7,11 @@ os:
   - osx
   - linux
 warnings_are_errors: false
+
+compiler:
+  - gcc
+  - clang
+
+matrix:
+  allow_failures:
+    - os: osx

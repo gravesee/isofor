@@ -4,7 +4,11 @@
 #include <bitset>
 #include <math.h>
 #include "predict.h"
+
+#ifdef _OPENMP
 #include <omp.h>
+#endif
+
 using namespace Rcpp;
 
 // Enumration helpers corresponding to matrix columns or list indices

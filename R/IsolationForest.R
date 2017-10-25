@@ -3,6 +3,7 @@
 ## put splitting function in its own function
 split_on_var <- function(x, ...) UseMethod("split_on_var")
 
+#' importFrom stats runif
 split_on_var.numeric <- function(x, ...) {
   v = do.call(runif, as.list(c(1, range(x))))
   list(value = v, filter = x < v)
@@ -104,6 +105,7 @@ iTree <- function(X, l) {
 #' @references F. T. Liu, K. M. Ting, Z.-H. Zhou, "Isolation-based anomaly detection",
 #' \emph{ACM Trans. Knowl. Discov. Data}, vol. 6, no. 1, pp. 3:1-3:39, Mar. 2012.
 #'
+#' @importFrom parallel detectCores makeCluster parLapply stopCluster
 #' @export
 iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE) {
 

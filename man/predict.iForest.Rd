@@ -4,18 +4,32 @@
 \alias{predict.iForest}
 \title{predcit.iForest}
 \usage{
-\method{predict}{iForest}(object, newdata, ..., multicore = FALSE,
-  nodes = FALSE, sparse = FALSE)
+\method{predict}{iForest}(object, newdata, ..., n.cores = 1, nodes = FALSE,
+  sparse = FALSE)
 }
 \arguments{
 \item{object}{an \code{iForest} object}
 
 \item{newdata}{a dataset to predict}
 
-\item{multicore}{true/false value indicating if prediction should be run in parallel}
+\item{n.cores}{number of cores to use for prediction of anomaly score. Must
+be compiled with openmp. Defaults to 1.}
 
-\item{type}{predict can export the anamoly score, a list of nodes, or the terminal nodes}
+\item{nodes}{if true return nobs x ntrees dim matrix with terminal node ids}
+
+\item{sparse}{if true return sparse Matrix of dimension nobs x nTerminalNodes.
+Each column represents a terminal node. There are as many ones in each row
+as there are trees in the forest. Each observation can only belong to one
+terminal node per tree. Useful for further modeling or to identify predictive
+interactions.}
 }
 \description{
-predict.iForest is a method of the predict generic function.
+return predictions of various types for the isolation forest
+object
+}
+\details{
+By default the predict function returns an anomaly score. The
+anomaly score is a [0,1] scaled measure of isolation. Higher scores
+correspond to more isolated observations. If sparse or nodes are set to TRUE,
+a matrix of the requested type is returned.
 }

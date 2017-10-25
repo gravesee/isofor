@@ -1,14 +1,14 @@
 Package: isofor
 Type: Package
 Title: Isolation Forest Anomaly Detection
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: c(
     person("Eric", "Graves", email = "gravcon@gmail.com", role = "cre"),
     person("Ignat", "Drozdov", email = "idrozdov@beringresearch.com", role = "aut"))
 Description: One efficient way of performing outlier detection in high-dimensional datasets is to use random forests.
 		The isofor ‘isolates’ observations by randomly selecting a feature and then randomly selecting a split
 		value between the maximum and minimum values of the selected feature. 
-License: What license is it under?
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1

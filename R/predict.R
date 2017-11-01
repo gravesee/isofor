@@ -1,4 +1,4 @@
-#' @title predcit.iForest
+#' @title predict.iForest
 #'
 #' @description return predictions of various types for the isolation forest
 #' object
@@ -59,7 +59,7 @@ predict.iForest <- function(object, newdata, ..., n.cores=1, nodes = FALSE,
   } else if (nodes) {
 	  predict_iForest_nodes_cpp(newdata, object)
   } else {
-    num_cores = as.integer(max(1, min(n.cores, parallel::detectCores())))
+    num_cores = as.integer(max(1, min(n.cores, detectCores())))
     predict_iForest_pathlength_cpp(newdata, object, num_cores)
   }
 }

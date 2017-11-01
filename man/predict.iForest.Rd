@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{predict.iForest}
 \alias{predict.iForest}
-\title{predcit.iForest}
+\title{predict.iForest}
 \usage{
 \method{predict}{iForest}(object, newdata, ..., n.cores = 1, nodes = FALSE,
   sparse = FALSE)

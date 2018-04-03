@@ -25,7 +25,7 @@ split_on_var.factor <- function(x, ..., idx=integer(32)) {
 
 ## pull the recursive function out
 # X = data, e = current depth, l = max depth, ni = node index
-recurse <- function(idx, e, l, ni=0, env) {
+recurse <- function(idx, e, l, ni=0, env, sentinel) {
 
   ## don't sample columns with all dups
   dups <- sapply(env$X[idx,], function(x) all(duplicated(x)[-1L]))
@@ -39,7 +39,11 @@ recurse <- function(idx, e, l, ni=0, env) {
 
   ## randomly select attribute
   #i = sample(1:NCOL(env$X), 1)
-  i = sample(which(!dups), 1)
+  if (identical(sum(!dups), 1L)) {
+    i <- which(!dups)
+  } else {
+    i <- sample(which(!dups), 1)
+  }
 
   ## check if factor with <= 32 levels
   res = split_on_var(env$X[idx, i, TRUE])
@@ -53,8 +57,8 @@ recurse <- function(idx, e, l, ni=0, env) {
   env$mat[ni, "AttType"] <- ifelse(is.factor(env$X[,i,T]), 2, 1)
 
   ## recurse
-  recurse(idx[which(f)] , e + 1, l, nL, env)
-  recurse(idx[which(!f)], e + 1, l, nR, env)
+  recurse(idx[which(f)] , e + 1, l, nL, env, sentinel)
+  recurse(idx[which(!f)], e + 1, l, nR, env, sentinel)
 }
 
 
@@ -77,7 +81,6 @@ iTree <- function(X, l) {
    dimnames = list(NULL, c("TerminalID", "Type","Size","Left","Right","SplitAtt","SplitValue","AttType")))
   env$X = X
 
-  #recurse(X, e=0, l=l, ni=1, env)
   recurse(seq.int(nrow(X)), e=0, l=l, ni=1, env)
   compress_matrix(env$mat)
 }
@@ -94,6 +97,8 @@ iTree <- function(X, l) {
 #' @param replace_missing if TRUE, replaces missing factor levels with "." and missing
 #' numeric values with the \code{sentinel} argument
 #' @param sentinel value to use as stand-in for missing numeric values
+#' @param ncolsample if not NULL, the default, `ncolsample` features are subsampled for each
+#' tree. See details for more information.
 #' @details An Isolation Forest is an unsupervised anomaly detection algorithm. The requested
 #' number of trees, \code{nt}, are built completely at random on a subsample of size \code{phi}.
 #' At each node a random variable is selected. A random split is chosen from the range of that
@@ -103,6 +108,13 @@ iTree <- function(X, l) {
 #' begins again on the left and right subsets of the data. Tree building terminates when the
 #' maximum depth of the tree is reached or there are 1 or fewer observations in the filtered
 #' subset.
+#' 
+#' If \code{ncolsample} is not null, the algorithm will subsample a number of features equal
+#' to \code{ncolsample} to construct each tree. The features are not sampled randomly, but use
+#' an appropriate measure for the column's class. This measure is first applied to all columns.
+#' The decreasing order is then calculated and the first \code{ncolsample} columns are taken 
+#' from this ordering. Numeric fields are ordered using kurtosis while factors use Shannon
+#' entropy.
 #'
 #' @return an \code{iForest} object
 #' @references F. T. Liu, K. M. Ting, Z.-H. Zhou, "Isolation-based anomaly detection",
@@ -111,7 +123,7 @@ iTree <- function(X, l) {
 #' @importFrom parallel detectCores makeCluster parLapply stopCluster
 #' @export
 iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE,
-  replace_missing=TRUE, sentinel=-9999999999) {
+  replace_missing=TRUE, sentinel=-9999999999, ncolsample=NULL) {
 
   set.seed(seed)
 
@@ -138,23 +150,52 @@ iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE,
   ## check for missing values
   na.cols <- sapply(X, function(col) any(is.na(col)))
   if (any(na.cols)) stop("Missing values found in: ", paste0(names(X[na.cols]), collapse = ", "))
+  
+  ## check ncolsample is valid
+  if (!is.null(ncolsample)) {
+    if (!is.numeric(ncolsample) || ncolsample < 0) stop("Invalid value for ncolsample.")
+    if (ncolsample >= ncol(X)) {
+      ncolsample <- NULL
+      warning("ncolsample >= ncol(X) resulting in no subsampling.")
+    }
+  }
 
   if (multicore) {
     ncores <- detectCores()
 
-    sample_dfs <- replicate(nt, {X[sample(nrow(X), phi),]}, simplify = F)
+    ## subsample columns here
+    sample_dfs <- vector("list", nt)
+    for (i in seq_along(sample_dfs)) {
+      idx <- sample(nrow(X), phi)
+      
+      sample_dfs[[i]] <- X[idx,]
+      
+      if (!is.null(ncolsample)) {
+        cols <- sample_cols_(sample_dfs[[i]], sentinel)
+        ## set non-sampled cols to all NA which will be skipped for tree construction
+        ## yet still maintaing the correct column IDs which the is necessary for 
+        ## the internal tree representation
+        sample_dfs[[i]][,-head(cols, ncolsample)] <- NA
+      }
+    }
+    
     cl <- makeCluster(getOption("cl.cores", ncores))
-    ##clusterExport(cl ,c('dpert','variable'))
-
+    on.exit(stopCluster(cl))
+    
     forest <- parLapply(cl, sample_dfs, iTree, l)
 
-    stopCluster(cl)
+    
   } else {
 
     forest <- vector("list", nt)
     for (i in 1:nt) {
       s <- sample(nrow(X), phi)
-      forest[[i]] <- iTree(X[s,], l)
+      Xs <- X[s,]
+      if (!is.null(ncolsample)) {
+        cols <- sample_cols_(Xs, sentinel)
+        Xs[,-head(cols, ncolsample)] <- NA
+      }
+      forest[[i]] <- iTree(Xs, l)
     }
 
   }

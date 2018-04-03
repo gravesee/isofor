@@ -26,3 +26,25 @@ isofor_demo = function() {
   appDir = system.file("shiny-examples", "isofor-demo", package = "isofor")
   shiny::runApp(appDir)
 }
+
+#' @export
+kurtosis <- function(x, sentinel) {
+  f <- !(is.na(x) | x == sentinel)
+  mn <- mean(x[f])
+  ss <- x[f] - mn
+  m4 <- mean(ss^4)
+  m2 <- mean(ss^2)
+  m4/m2^2 - 3  
+}
+
+#' @export
+entropy <- function(x, base=log2) {
+  prop <- prop.table(table(x))
+  -sum(prop * base(prop))
+}
+
+sample_cols_ <- function(df, sentinel) {
+  i <- sapply(df, function(x) if (is.factor(x)) entropy(x) else kurtosis(x, sentinel))
+  order(-abs(i))
+}
+

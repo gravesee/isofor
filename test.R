@@ -7,8 +7,14 @@ data(titanic, package="binnr")
 titanic$Pclass[1:10] <- NA
 titanic$Sex[sample(nrow(titanic), 100)] <-  NA
 
+set.seed(100)
+mod1 <- iForest(titanic, ncolsample = NULL, multicore = TRUE)
 
-mod <- iForest(titanic[c("Age","Sex")])
+set.seed(100)
+mod2 <- iForest(titanic, ncolsample = 20, multicore=TRUE, nt=500)
+
+p1 <- predict(mod1, titanic)
+p2 <- predict(mod2, titanic)
 
 
 code <- isofor_to_sas(mod, pfx = "test")

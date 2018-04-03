@@ -5,11 +5,7 @@
 \title{predict.iForest}
 \usage{
 \method{predict}{iForest}(object, newdata, ..., n.cores = 1, nodes = FALSE,
-<<<<<<< HEAD
-  sparse = FALSE)
-=======
   sparse = FALSE, replace_missing = TRUE, sentinel = -9999999999)
->>>>>>> 05649892b210a31e5578dba0d9d3352d82066858
 }
 \arguments{
 \item{object}{an \code{iForest} object}

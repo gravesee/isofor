@@ -4,9 +4,18 @@ library(microbenchmark)
 
 data(titanic, package="binnr")
 
-titanic$Age[is.na(titanic$Age)] <- 0
+titanic$Pclass[1:10] <- NA
+titanic$Sex[sample(nrow(titanic), 100)] <-  NA
 
-mod <- iForest(titanic, 500, 32)
+
+mod <- iForest(titanic[c("Age","Sex")])
+
+
+code <- isofor_to_sas(mod, pfx = "test")
+
+writeLines(code, "test.sas", sep = "\n")
+
+
 p1 <- predict(mod, titanic, n.cores=1L)
 p2 <- predict(mod, titanic, n.cores=4L)
 
@@ -31,3 +40,8 @@ microbenchmark(
   new=predict(mod, titanic, iterative = TRUE),
   old=predict(mod, titanic, iterative = FALSE), times = 5L)
 
+
+
+sapply(mod$forest, function(t) {
+  min(t[,"SplitValue"])
+})

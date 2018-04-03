@@ -56,12 +56,33 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+<<<<<<< HEAD
+=======
+// top_k_distances
+SEXP top_k_distances(SEXP pos, SEXP li, SEXP n, SEXP k);
+RcppExport SEXP _isofor_top_k_distances(SEXP posSEXP, SEXP liSEXP, SEXP nSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type pos(posSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type li(liSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type n(nSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(top_k_distances(pos, li, n, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+>>>>>>> 05649892b210a31e5578dba0d9d3352d82066858
 
 static const R_CallMethodDef CallEntries[] = {
     {"_isofor_nodes_cpp", (DL_FUNC) &_isofor_nodes_cpp, 4},
     {"_isofor_predict_iForest_nodes_cpp", (DL_FUNC) &_isofor_predict_iForest_nodes_cpp, 2},
     {"_isofor_predict_iForest_sparse_nodes", (DL_FUNC) &_isofor_predict_iForest_sparse_nodes, 2},
     {"_isofor_predict_iForest_pathlength_cpp", (DL_FUNC) &_isofor_predict_iForest_pathlength_cpp, 3},
+<<<<<<< HEAD
+=======
+    {"_isofor_top_k_distances", (DL_FUNC) &_isofor_top_k_distances, 4},
+>>>>>>> 05649892b210a31e5578dba0d9d3352d82066858
     {NULL, NULL, 0}
 };
 

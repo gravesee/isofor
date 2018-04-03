@@ -30,7 +30,7 @@
 #' @export
 #'
 predict.iForest <- function(object, newdata, ..., n.cores=1, nodes = FALSE,
-  sparse = FALSE) {
+  sparse = FALSE, replace_missing=TRUE, sentinel=-9999999999) {
 
   if (!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
 
@@ -38,6 +38,18 @@ predict.iForest <- function(object, newdata, ..., n.cores=1, nodes = FALSE,
   classes = unlist(lapply(newdata, class))
   if (!all(classes %in% c("numeric","factor","integer", "ordered"))) {
     stop("newdata contains classes other than numeric, factor, and integer")
+  }
+
+  ## impute missing values
+  if (replace_missing) {
+    for (i in seq_along(newdata)) {
+      if (is.numeric(newdata[[i]])) {
+        newdata[[i]][is.na(newdata[[i]])] <- sentinel
+      } else if (is.factor(newdata[[i]])) {
+        levels(newdata[[i]]) <- c(levels(newdata[[i]]), ".")
+        newdata[[i]][is.na(newdata[[i]])] <- "."
+      }
+    }
   }
 
   ## check for missing values

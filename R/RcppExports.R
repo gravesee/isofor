@@ -15,5 +15,12 @@ predict_iForest_sparse_nodes <- function(x, Model) {
 
 predict_iForest_pathlength_cpp <- function(df, Model, n_cores) {
     .Call('_isofor_predict_iForest_pathlength_cpp', PACKAGE = 'isofor', df, Model, n_cores)
+<<<<<<< HEAD
+=======
+}
+
+top_k_distances <- function(pos, li, n, k) {
+    .Call('_isofor_top_k_distances', PACKAGE = 'isofor', pos, li, n, k)
+>>>>>>> 05649892b210a31e5578dba0d9d3352d82066858
 }
 

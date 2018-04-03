@@ -4,7 +4,12 @@
 \alias{iForest}
 \title{iForest}
 \usage{
+<<<<<<< HEAD
 iForest(X, nt = 100, phi = 256, seed = 1234, multicore = FALSE)
+=======
+iForest(X, nt = 100, phi = 256, seed = 1234, multicore = FALSE,
+  replace_missing = TRUE, sentinel = -9999999999)
+>>>>>>> 05649892b210a31e5578dba0d9d3352d82066858
 }
 \arguments{
 \item{X}{a matrix or data.frame of numeric or factors values}
@@ -14,6 +19,13 @@ iForest(X, nt = 100, phi = 256, seed = 1234, multicore = FALSE)
 \item{phi}{the number of samples to draw without replacement to construct each tree}
 
 \item{seed}{random seed to ensure creation of reproducible foresets}
+
+\item{replace_missing}{if TRUE, replaces missing factor levels with "." and missing
+numeric values with the \code{sentinel} argument}
+
+\item{sentinel}{value to use as stand-in for missing numeric values}
+
+\item{mulicore}{fit trees using the parallel package}
 }
 \value{
 an \code{iForest} object

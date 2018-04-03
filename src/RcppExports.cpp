@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // nodes_cpp
 IntegerVector nodes_cpp(DataFrame x, NumericMatrix Tree, double e, int ni);
-RcppExport SEXP isofor_nodes_cpp(SEXP xSEXP, SEXP TreeSEXP, SEXP eSEXP, SEXP niSEXP) {
+RcppExport SEXP _isofor_nodes_cpp(SEXP xSEXP, SEXP TreeSEXP, SEXP eSEXP, SEXP niSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -21,7 +21,7 @@ END_RCPP
 }
 // predict_iForest_nodes_cpp
 IntegerMatrix predict_iForest_nodes_cpp(DataFrame x, List Model);
-RcppExport SEXP isofor_predict_iForest_nodes_cpp(SEXP xSEXP, SEXP ModelSEXP) {
+RcppExport SEXP _isofor_predict_iForest_nodes_cpp(SEXP xSEXP, SEXP ModelSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -33,7 +33,7 @@ END_RCPP
 }
 // predict_iForest_sparse_nodes
 SEXP predict_iForest_sparse_nodes(DataFrame x, List Model);
-RcppExport SEXP isofor_predict_iForest_sparse_nodes(SEXP xSEXP, SEXP ModelSEXP) {
+RcppExport SEXP _isofor_predict_iForest_sparse_nodes(SEXP xSEXP, SEXP ModelSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -45,7 +45,7 @@ END_RCPP
 }
 // predict_iForest_pathlength_cpp
 SEXP predict_iForest_pathlength_cpp(SEXP df, List Model, SEXP n_cores);
-RcppExport SEXP isofor_predict_iForest_pathlength_cpp(SEXP dfSEXP, SEXP ModelSEXP, SEXP n_coresSEXP) {
+RcppExport SEXP _isofor_predict_iForest_pathlength_cpp(SEXP dfSEXP, SEXP ModelSEXP, SEXP n_coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -55,4 +55,17 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(predict_iForest_pathlength_cpp(df, Model, n_cores));
     return rcpp_result_gen;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_isofor_nodes_cpp", (DL_FUNC) &_isofor_nodes_cpp, 4},
+    {"_isofor_predict_iForest_nodes_cpp", (DL_FUNC) &_isofor_predict_iForest_nodes_cpp, 2},
+    {"_isofor_predict_iForest_sparse_nodes", (DL_FUNC) &_isofor_predict_iForest_sparse_nodes, 2},
+    {"_isofor_predict_iForest_pathlength_cpp", (DL_FUNC) &_isofor_predict_iForest_pathlength_cpp, 3},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_isofor(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

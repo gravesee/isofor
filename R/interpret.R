@@ -128,6 +128,7 @@ get_node_rules <- function(mod, i) {
 }
 
 ## put it all together
+#' importFrom stats xtabs
 #' @export
 pretty_node <- function(mod, i) {
   rules <- get_node_rules(mod, i)

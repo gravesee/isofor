@@ -2,13 +2,29 @@
 library(isofor)
 library(microbenchmark)
 
+
+x <- as.matrix(mtcars)
+coltypes <- rep(1L, ncol(x))
+nt <- 10L
+phi <- 8L
+
+sink("errors.log")
+isofor(x, coltypes, nt, phi)
+
+
+
+
+
+
+
+
 data(titanic, package="binnr")
 
 titanic$Pclass[1:10] <- NA
 titanic$Sex[sample(nrow(titanic), 100)] <-  NA
 
 set.seed(100)
-mod1 <- iForest(titanic, ncolsample = NULL, multicore = TRUE)
+mod1 <- iForest(titanic[-1], ncolsample = NULL, multicore = FALSE)
 
 set.seed(100)
 mod2 <- iForest(titanic, ncolsample = 20, multicore=TRUE, nt=500)
@@ -51,3 +67,23 @@ microbenchmark(
 sapply(mod$forest, function(t) {
   min(t[,"SplitValue"])
 })
+
+
+
+
+
+nodes <- predict(mod1, titanic, sparse=TRUE)
+
+tf <- nodes / Matrix::rowSums(nodes)
+idf <- log(nrow(nodes), Matrix::colSums(nodes))
+idf[is.infinite(idf)] <- 0
+tfidf <- tf * idf
+
+
+library(e1071)
+svm_model <- svm(tfidf, factor(titanic$Survived), kernel="linear", cross = 5, probability = TRUE)
+
+pred <- predict(svm_model, tfidf, probability = TRUE)
+probs <- attr(pred, "probabilities")[,2]
+plot(pROC::roc(titanic$Survived, probs))
+

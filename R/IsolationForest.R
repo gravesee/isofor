@@ -28,7 +28,7 @@ split_on_var.factor <- function(x, ..., idx=integer(32)) {
 recurse <- function(idx, e, l, ni=0, env, sentinel) {
 
   ## don't sample columns with all dups
-  dups <- sapply(env$X[idx,], function(x) all(duplicated(x)[-1L]))
+  dups <- sapply(env$X[idx,,FALSE], function(x) all(duplicated(x)[-1L]))
 
   ## Base case
   if (e >= l || length(idx) <= 1 || all(dups)) {
@@ -46,7 +46,7 @@ recurse <- function(idx, e, l, ni=0, env, sentinel) {
   }
 
   ## check if factor with <= 32 levels
-  res = split_on_var(env$X[idx, i, TRUE])
+  res = split_on_var(env$X[idx, i])
   f = res$filter
 
   ## modify matrix in place
@@ -54,7 +54,7 @@ recurse <- function(idx, e, l, ni=0, env, sentinel) {
   env$mat[ni, c("Right")] <- nR <- 2 * ni + 1
 
   env$mat[ni, c("SplitAtt", "SplitValue", "Type")] <- c(i, res$value, 1)
-  env$mat[ni, "AttType"] <- ifelse(is.factor(env$X[,i,T]), 2, 1)
+  env$mat[ni, "AttType"] <- ifelse(is.factor(env$X[,i,F]), 2, 1)
 
   ## recurse
   recurse(idx[which(f)] , e + 1, l, nL, env, sentinel)
@@ -108,11 +108,11 @@ iTree <- function(X, l) {
 #' begins again on the left and right subsets of the data. Tree building terminates when the
 #' maximum depth of the tree is reached or there are 1 or fewer observations in the filtered
 #' subset.
-#' 
+#'
 #' If \code{ncolsample} is not null, the algorithm will subsample a number of features equal
 #' to \code{ncolsample} to construct each tree. The features are not sampled randomly, but use
 #' an appropriate measure for the column's class. This measure is first applied to all columns.
-#' The decreasing order is then calculated and the first \code{ncolsample} columns are taken 
+#' The decreasing order is then calculated and the first \code{ncolsample} columns are taken
 #' from this ordering. Numeric fields are ordered using kurtosis while factors use Shannon
 #' entropy.
 #'
@@ -150,7 +150,7 @@ iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE,
   ## check for missing values
   na.cols <- sapply(X, function(col) any(is.na(col)))
   if (any(na.cols)) stop("Missing values found in: ", paste0(names(X[na.cols]), collapse = ", "))
-  
+
   ## check ncolsample is valid
   if (!is.null(ncolsample)) {
     if (!is.numeric(ncolsample) || ncolsample < 0) stop("Invalid value for ncolsample.")
@@ -167,30 +167,30 @@ iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE,
     sample_dfs <- vector("list", nt)
     for (i in seq_along(sample_dfs)) {
       idx <- sample(nrow(X), phi)
-      
+
       sample_dfs[[i]] <- X[idx,]
-      
+
       if (!is.null(ncolsample)) {
         cols <- sample_cols_(sample_dfs[[i]], sentinel)
         ## set non-sampled cols to all NA which will be skipped for tree construction
-        ## yet still maintaing the correct column IDs which the is necessary for 
+        ## yet still maintaing the correct column IDs which the is necessary for
         ## the internal tree representation
         sample_dfs[[i]][,-head(cols, ncolsample)] <- NA
       }
     }
-    
+
     cl <- makeCluster(getOption("cl.cores", ncores))
     on.exit(stopCluster(cl))
-    
+
     forest <- parLapply(cl, sample_dfs, iTree, l)
 
-    
+
   } else {
 
     forest <- vector("list", nt)
     for (i in 1:nt) {
       s <- sample(nrow(X), phi)
-      Xs <- X[s,]
+      Xs <- X[s,,FALSE]
       if (!is.null(ncolsample)) {
         cols <- sample_cols_(Xs, sentinel)
         Xs[,-head(cols, ncolsample)] <- NA

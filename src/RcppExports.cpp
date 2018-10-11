@@ -5,19 +5,6 @@
 
 using namespace Rcpp;
 
-// predict_iForest_pathlength_cpp
-SEXP predict_iForest_pathlength_cpp(SEXP df, List Model, SEXP n_cores);
-RcppExport SEXP _isofor_predict_iForest_pathlength_cpp(SEXP dfSEXP, SEXP ModelSEXP, SEXP n_coresSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type df(dfSEXP);
-    Rcpp::traits::input_parameter< List >::type Model(ModelSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type n_cores(n_coresSEXP);
-    rcpp_result_gen = Rcpp::wrap(predict_iForest_pathlength_cpp(df, Model, n_cores));
-    return rcpp_result_gen;
-END_RCPP
-}
 // nodes_cpp
 IntegerVector nodes_cpp(DataFrame x, NumericMatrix Tree, double e, int ni);
 RcppExport SEXP _isofor_nodes_cpp(SEXP xSEXP, SEXP TreeSEXP, SEXP eSEXP, SEXP niSEXP) {
@@ -56,12 +43,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// predict_iForest_pathlength_cpp
+SEXP predict_iForest_pathlength_cpp(SEXP df, List Model, SEXP n_cores);
+RcppExport SEXP _isofor_predict_iForest_pathlength_cpp(SEXP dfSEXP, SEXP ModelSEXP, SEXP n_coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< List >::type Model(ModelSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type n_cores(n_coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(predict_iForest_pathlength_cpp(df, Model, n_cores));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_isofor_predict_iForest_pathlength_cpp", (DL_FUNC) &_isofor_predict_iForest_pathlength_cpp, 3},
     {"_isofor_nodes_cpp", (DL_FUNC) &_isofor_nodes_cpp, 4},
     {"_isofor_predict_iForest_nodes_cpp", (DL_FUNC) &_isofor_predict_iForest_nodes_cpp, 2},
     {"_isofor_predict_iForest_sparse_nodes", (DL_FUNC) &_isofor_predict_iForest_sparse_nodes, 2},
+    {"_isofor_predict_iForest_pathlength_cpp", (DL_FUNC) &_isofor_predict_iForest_pathlength_cpp, 3},
     {NULL, NULL, 0}
 };
 

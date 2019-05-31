@@ -2,11 +2,8 @@ Package: isofor
 Type: Package
 Title: Isolation Forest Anomaly Detection
 Version: 1.0.0
-Authors@R: c(
-    person("Eric", "Graves", email = "gravcon@gmail.com", role = "cre"),
-    person("Ignat", "Drozdov", email = "idrozdov@beringresearch.com", role = "aut"))
 Author: Eric Graves [aut, cre]
-  Ignat Drozdov [ctb]
+    Ignat Drozdov [ctb]
 Maintainer: Eric Graves <gravcon5@gmail.com>
 Description: One efficient way of performing outlier detection in high-dimensional datasets is to use random forests.
 		The isofor ‘isolates’ observations by randomly selecting a feature and then randomly selecting a split

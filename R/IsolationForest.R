@@ -211,6 +211,7 @@ iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE, replace_miss
 #' 
 #' @param x object of class iForest.
 #' @param ... ignored
+#' @method print iForest
 #' @export
 print.iForest <- function(x, ...) {
   txt = sprintf("Isolation Forest with %d Trees and Max Depth of %d", x$nTrees, x$l)

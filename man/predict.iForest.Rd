@@ -4,13 +4,16 @@
 \alias{predict.iForest}
 \title{predict.iForest}
 \usage{
-\method{predict}{iForest}(object, newdata, ..., n.cores = 1, nodes = FALSE,
-  sparse = FALSE, replace_missing = TRUE, sentinel = -9999999999)
+\method{predict}{iForest}(object, newdata, ..., n.cores = 1,
+  nodes = FALSE, sparse = FALSE, replace_missing = TRUE,
+  sentinel = -9999999999)
 }
 \arguments{
 \item{object}{an \code{iForest} object}
 
-\item{newdata}{a dataset to predict}
+\item{newdata}{a data.frame to predict}
+
+\item{...}{optional arguments not used.}
 
 \item{n.cores}{number of cores to use for prediction of anomaly score. Must
 be compiled with openmp. Defaults to 1.}
@@ -22,6 +25,11 @@ Each column represents a terminal node. There are as many ones in each row
 as there are trees in the forest. Each observation can only belong to one
 terminal node per tree. Useful for further modeling or to identify predictive
 interactions.}
+
+\item{replace_missing}{if TRUE, replaces missing factor levels with "." and missing
+numeric values with the \code{sentinel} argument}
+
+\item{sentinel}{value to use as stand-in for missing numeric values}
 }
 \description{
 return predictions of various types for the isolation forest

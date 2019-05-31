@@ -11,7 +11,7 @@
 
 using namespace Rcpp;
 
-// Enumration helpers corresponding to matrix columns or list indices
+// Enumeration helpers corresponding to matrix columns or list indices
 enum Tree { TerminalID, Type, Size, Left, Right, SplitAtt, SplitValue, AttType };
 enum vType { Numeric = 1, Factor = 2};
 enum ForestSlots { FOREST=0, PHI=1, NTREES=3, NTERM=5};

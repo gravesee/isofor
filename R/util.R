@@ -21,13 +21,15 @@ cn <- function(n) {
 ## used to calculate maximum possible nodes for given tree height
 max_nodes <- function(l, b=2) (b ^ (l) - 1) + b ^ l
 
+#' Isolation Forest Demo
+#' Shiny app demonstrating isolation forest parameters and
+#' their affect on the anomaly score.
 #' @export
 isofor_demo = function() {
   appDir = system.file("shiny-examples", "isofor-demo", package = "isofor")
   shiny::runApp(appDir)
 }
 
-#' @export
 kurtosis <- function(x, sentinel) {
   f <- !(is.na(x) | x == sentinel)
   mn <- mean(x[f])
@@ -37,7 +39,6 @@ kurtosis <- function(x, sentinel) {
   m4/m2^2 - 3  
 }
 
-#' @export
 entropy <- function(x, base=log2) {
   prop <- prop.table(table(x))
   -sum(prop * base(prop))

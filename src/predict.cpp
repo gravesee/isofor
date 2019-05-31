@@ -85,7 +85,7 @@ IntegerMatrix predict_iForest_nodes_cpp(DataFrame x, List Model) {
   IntegerMatrix nodes(x.nrows(), N);
 
   for (int i = 0; i < N; i++) {
-    //Rcpp::checkUserInterrupt();
+    Rcpp::checkUserInterrupt();
     nodes(_, i) = nodes_cpp(x, Rcpp::as<NumericMatrix>(forest[i]), 0, 0);
   }
 

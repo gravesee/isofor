@@ -5,7 +5,7 @@
 \title{iForest}
 \usage{
 iForest(X, nt = 100, phi = 256, seed = 1234, multicore = FALSE,
-  replace_missing = TRUE, sentinel = -9999999999)
+  replace_missing = TRUE, sentinel = -9999999999, ncolsample = NULL)
 }
 \arguments{
 \item{X}{a matrix or data.frame of numeric or factors values}
@@ -16,12 +16,15 @@ iForest(X, nt = 100, phi = 256, seed = 1234, multicore = FALSE,
 
 \item{seed}{random seed to ensure creation of reproducible foresets}
 
+\item{multicore}{fit trees using the parallel package}
+
 \item{replace_missing}{if TRUE, replaces missing factor levels with "." and missing
 numeric values with the \code{sentinel} argument}
 
 \item{sentinel}{value to use as stand-in for missing numeric values}
 
-\item{mulicore}{fit trees using the parallel package}
+\item{ncolsample}{if not NULL, the default, `ncolsample` features are subsampled for each
+tree. See details for more information.}
 }
 \value{
 an \code{iForest} object
@@ -39,6 +42,13 @@ Records from \code{X} are then filtered based on the split criterion and the tre
 begins again on the left and right subsets of the data. Tree building terminates when the
 maximum depth of the tree is reached or there are 1 or fewer observations in the filtered
 subset.
+
+If \code{ncolsample} is not null, the algorithm will subsample a number of features equal
+to \code{ncolsample} to construct each tree. The features are not sampled randomly, but use
+an appropriate measure for the column's class. This measure is first applied to all columns.
+The decreasing order is then calculated and the first \code{ncolsample} columns are taken 
+from this ordering. Numeric fields are ordered using kurtosis while factors use Shannon
+entropy.
 }
 \references{
 F. T. Liu, K. M. Ting, Z.-H. Zhou, "Isolation-based anomaly detection",

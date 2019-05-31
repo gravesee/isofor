@@ -5,32 +5,27 @@
 #'
 #' @param object an \code{iForest} object
 #'
-#' @param newdata a dataset to predict
-#'
+#' @param newdata a data.frame to predict
+#' @param ... optional arguments not used.
 #' @param n.cores number of cores to use for prediction of anomaly score. Must
 #' be compiled with openmp. Defaults to 1.
-#'
 #' @param nodes if true return nobs x ntrees dim matrix with terminal node ids
-#'
 #' @param sparse if true return sparse Matrix of dimension nobs x nTerminalNodes.
 #' Each column represents a terminal node. There are as many ones in each row
 #' as there are trees in the forest. Each observation can only belong to one
 #' terminal node per tree. Useful for further modeling or to identify predictive
 #' interactions.
-#'
+#' @param replace_missing if TRUE, replaces missing factor levels with "." and missing
+#' numeric values with the \code{sentinel} argument
+#' @param sentinel value to use as stand-in for missing numeric values
 #' @details By default the predict function returns an anomaly score. The
 #' anomaly score is a [0,1] scaled measure of isolation. Higher scores
 #' correspond to more isolated observations. If sparse or nodes are set to TRUE,
 #' a matrix of the requested type is returned.
-#'
 #' @import Matrix
-#'
 #' @importFrom parallel detectCores
-#'
 #' @export
-#'
-predict.iForest <- function(object, newdata, ..., n.cores=1, nodes = FALSE,
-  sparse = FALSE, replace_missing=TRUE, sentinel=-9999999999) {
+predict.iForest <- function(object, newdata, ..., n.cores=1, nodes = FALSE, sparse = FALSE, replace_missing=TRUE, sentinel=-9999999999) {
 
   if (!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
 

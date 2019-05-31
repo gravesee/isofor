@@ -3,9 +3,8 @@
 ## put splitting function in its own function
 split_on_var <- function(x, ...) UseMethod("split_on_var")
 
-#' importFrom stats runif
 split_on_var.numeric <- function(x, ...) {
-  v = do.call(runif, as.list(c(1, range(x))))
+  v = do.call(stats::runif, as.list(c(1, range(x))))
   list(value = v, filter = x < v)
 }
 
@@ -15,7 +14,6 @@ split_on_var.factor <- function(x, ..., idx=integer(32)) {
 
   if (length(l) < 1) print("zero length!?")
   ## don't sample 0 or all
-  #s = sample(2^(length(l)) - 1, 1)
   s = sample(max(1, 2^(length(l)) - 2), 1)
 
   i = l[which(intToBits(s) == 1)]
@@ -32,13 +30,11 @@ recurse <- function(idx, e, l, ni=0, env, sentinel) {
 
   ## Base case
   if (e >= l || length(idx) <= 1 || all(dups)) {
-  #if (e >= l || length(idx) <= 1) {
     env$mat[ni,c("Type", "Size")] <- c(-1, length(idx))
     return()
   }
 
   ## randomly select attribute
-  #i = sample(1:NCOL(env$X), 1)
   if (identical(sum(!dups), 1L)) {
     i <- which(!dups)
   } else {
@@ -93,7 +89,7 @@ iTree <- function(X, l) {
 #' @param nt the number of trees in the ensemble
 #' @param phi the number of samples to draw without replacement to construct each tree
 #' @param seed random seed to ensure creation of reproducible foresets
-#' @param mulicore fit trees using the parallel package
+#' @param multicore fit trees using the parallel package
 #' @param replace_missing if TRUE, replaces missing factor levels with "." and missing
 #' numeric values with the \code{sentinel} argument
 #' @param sentinel value to use as stand-in for missing numeric values
@@ -122,8 +118,7 @@ iTree <- function(X, l) {
 #'
 #' @importFrom parallel detectCores makeCluster parLapply stopCluster
 #' @export
-iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE,
-  replace_missing=TRUE, sentinel=-9999999999, ncolsample=NULL) {
+iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE, replace_missing=TRUE, sentinel=-9999999999, ncolsample=NULL) {
 
   set.seed(seed)
 
@@ -184,7 +179,6 @@ iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE,
     
     forest <- parLapply(cl, sample_dfs, iTree, l)
 
-    
   } else {
 
     forest <- vector("list", nt)
@@ -213,6 +207,10 @@ iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE,
     class = "iForest")
 }
 
+#' Printing iForest Objects
+#' 
+#' @param x object of class iForest.
+#' @param ... ignored
 #' @export
 print.iForest <- function(x, ...) {
   txt = sprintf("Isolation Forest with %d Trees and Max Depth of %d", x$nTrees, x$l)

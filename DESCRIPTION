@@ -3,7 +3,7 @@ Type: Package
 Title: Isolation Forest Anomaly Detection
 Version: 1.0.0
 Authors@R: c(
-    person("Eric", "Graves", email = "gravcon@gmail.com", role = "cre"),
+    person("Eric", "Graves", email = "gravcon5@gmail.com", role = "cre"),
     person("Ignat", "Drozdov", email = "idrozdov@beringresearch.com", role = "aut"))
 Author: Eric Graves [aut, cre]
   Ignat Drozdov [ctb]

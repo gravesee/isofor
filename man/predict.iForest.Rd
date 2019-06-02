@@ -43,7 +43,7 @@ a matrix of the requested type is returned.
 }
 \examples{
 library(isofor)
-mod1 <- iForest(iris, phi = 16, multicore = TRUE)
+mod1 <- iForest(iris, phi = 16, nt=100)
 pred <- predict(mod1, iris)
 nodes <- predict(mod1, iris, nodes=TRUE)
 sparse <- predict(mod1, iris, sparse=TRUE)

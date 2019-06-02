@@ -89,7 +89,6 @@ iTree <- function(X, l) {
 #' @param nt the number of trees in the ensemble
 #' @param phi the number of samples to draw without replacement to construct each tree
 #' @param seed random seed to ensure creation of reproducible foresets
-#' @param multicore fit trees using the parallel package
 #' @param replace_missing if TRUE, replaces missing factor levels with "." and missing
 #' numeric values with the \code{sentinel} argument
 #' @param sentinel value to use as stand-in for missing numeric values
@@ -118,10 +117,10 @@ iTree <- function(X, l) {
 #'
 #' @examples
 #' library(isofor)
-#' mod1 <- iForest(iris, phi = 16, multicore = TRUE)
+#' mod1 <- iForest(iris, phi = 16, nt=100)
 #' @importFrom parallel detectCores makeCluster parLapply stopCluster
 #' @export
-iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE, replace_missing=TRUE, sentinel=-9999999999, ncolsample=NULL) {
+iForest <- function(X, nt=100, phi=256, seed=1234, replace_missing=TRUE, sentinel=-9999999999, ncolsample=NULL) {
 
   set.seed(seed)
 
@@ -158,32 +157,6 @@ iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE, replace_miss
     }
   }
 
-  if (multicore) {
-    ncores <- detectCores()
-
-    ## subsample columns here
-    sample_dfs <- vector("list", nt)
-    for (i in seq_along(sample_dfs)) {
-      idx <- sample(nrow(X), phi)
-      
-      sample_dfs[[i]] <- X[idx,]
-      
-      if (!is.null(ncolsample)) {
-        cols <- sample_cols_(sample_dfs[[i]], sentinel)
-        ## set non-sampled cols to all NA which will be skipped for tree construction
-        ## yet still maintaing the correct column IDs which the is necessary for 
-        ## the internal tree representation
-        sample_dfs[[i]][,-head(cols, ncolsample)] <- NA
-      }
-    }
-    
-    cl <- makeCluster(getOption("cl.cores", ncores))
-    on.exit(stopCluster(cl))
-    
-    forest <- parLapply(cl, sample_dfs, iTree, l)
-
-  } else {
-
     forest <- vector("list", nt)
     for (i in 1:nt) {
       s <- sample(nrow(X), phi)
@@ -194,8 +167,6 @@ iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE, replace_miss
       }
       forest[[i]] <- iTree(Xs, l)
     }
-
-  }
 
   structure(
     list(

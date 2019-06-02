@@ -4,7 +4,7 @@
 \alias{iForest}
 \title{iForest}
 \usage{
-iForest(X, nt = 100, phi = 256, seed = 1234, multicore = FALSE,
+iForest(X, nt = 100, phi = 256, seed = 1234,
   replace_missing = TRUE, sentinel = -9999999999, ncolsample = NULL)
 }
 \arguments{
@@ -15,8 +15,6 @@ iForest(X, nt = 100, phi = 256, seed = 1234, multicore = FALSE,
 \item{phi}{the number of samples to draw without replacement to construct each tree}
 
 \item{seed}{random seed to ensure creation of reproducible foresets}
-
-\item{multicore}{fit trees using the parallel package}
 
 \item{replace_missing}{if TRUE, replaces missing factor levels with "." and missing
 numeric values with the \code{sentinel} argument}
@@ -52,7 +50,7 @@ entropy.
 }
 \examples{
 library(isofor)
-mod1 <- iForest(iris, phi = 16, multicore = TRUE)
+mod1 <- iForest(iris, phi = 16, nt=100)
 }
 \references{
 F. T. Liu, K. M. Ting, Z.-H. Zhou, "Isolation-based anomaly detection",

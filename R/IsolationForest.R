@@ -116,6 +116,9 @@ iTree <- function(X, l) {
 #' @references F. T. Liu, K. M. Ting, Z.-H. Zhou, "Isolation-based anomaly detection",
 #' \emph{ACM Trans. Knowl. Discov. Data}, vol. 6, no. 1, pp. 3:1-3:39, Mar. 2012.
 #'
+#' @examples
+#' library(isofor)
+#' mod1 <- iForest(iris, phi = 16, multicore = TRUE)
 #' @importFrom parallel detectCores makeCluster parLapply stopCluster
 #' @export
 iForest <- function(X, nt=100, phi=256, seed=1234, multicore=FALSE, replace_missing=TRUE, sentinel=-9999999999, ncolsample=NULL) {

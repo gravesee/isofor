@@ -50,6 +50,10 @@ The decreasing order is then calculated and the first \code{ncolsample} columns 
 from this ordering. Numeric fields are ordered using kurtosis while factors use Shannon
 entropy.
 }
+\examples{
+library(isofor)
+mod1 <- iForest(iris, phi = 16, multicore = TRUE)
+}
 \references{
 F. T. Liu, K. M. Ting, Z.-H. Zhou, "Isolation-based anomaly detection",
 \emph{ACM Trans. Knowl. Discov. Data}, vol. 6, no. 1, pp. 3:1-3:39, Mar. 2012.

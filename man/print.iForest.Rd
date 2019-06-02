@@ -4,7 +4,7 @@
 \alias{print.iForest}
 \title{Printing iForest Objects}
 \usage{
-print.iForest(x, ...)
+\method{print}{iForest}(x, ...)
 }
 \arguments{
 \item{x}{object of class iForest.}

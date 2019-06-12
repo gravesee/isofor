@@ -6,3 +6,4 @@
 ^\..*$
 ^README.*$
 ^LICENSE\.md$
+^cran-comments.md$

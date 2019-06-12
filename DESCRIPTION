@@ -5,9 +5,7 @@ Version: 1.0.0
 Author: Eric Graves [aut, cre]
     Ignat Drozdov [ctb]
 Maintainer: Eric Graves <gravcon5@gmail.com>
-Description: One efficient way of performing outlier detection in high-dimensional datasets is to use random forests.
-		The isofor ‘isolates’ observations by randomly selecting a feature and then randomly selecting a split
-		value between the maximum and minimum values of the selected feature. 
+Description: Isolation forest method from the paper Isolation based Anomaly Detection (Liu, Ting and Zhou <doi:10.1145/2133360.2133363>).
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

@@ -41,3 +41,11 @@ anomaly score is a [0,1] scaled measure of isolation. Higher scores
 correspond to more isolated observations. If sparse or nodes are set to TRUE,
 a matrix of the requested type is returned.
 }
+\examples{
+\dontrun{
+mod <- iForest(iris, phi=16, nt=100)
+score <- predict(mod, newdata = iris)
+nodes <- predict(mod, newdata = iris, nodes=TRUE)
+sparse <- predict(mod, newdata = iris, sparse=TRUE)
+}
+}

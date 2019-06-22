@@ -11,5 +11,6 @@ There were no ERRORs or WARNINGs or NOTEs.
 * Added reference about method to DESCRIPTION
 * enclose the article title in double quotes: "Isolation based Anomaly Detection"
 * Please add a small examples for your prediction function.
-
+* Expanded the description
+* removed dontrun directive in predict method examples
 

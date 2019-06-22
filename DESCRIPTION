@@ -5,7 +5,10 @@ Version: 1.0.0
 Author: Eric Graves [aut, cre]
     Ignat Drozdov [ctb]
 Maintainer: Eric Graves <gravcon5@gmail.com>
-Description: Isolation forest method from the paper "Isolation based Anomaly Detection" (Liu, Ting and Zhou <doi:10.1145/2133360.2133363>).
+Description: Implemenation of the Isolation forest method from the paper "Isolation based Anomaly Detection" (Liu, Ting and Zhou <doi:10.1145/2133360.2133363>).
+    An isolation forest measures how easy it is to isolate multivariate observations.
+    Observations that can be isolated with fewer axis-aligned partitions from random
+    decision trees are more likely to be anomalous.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

@@ -13,4 +13,5 @@ There were no ERRORs or WARNINGs or NOTEs.
 * Please add a small examples for your prediction function.
 * Expanded the description
 * removed dontrun directive in predict method examples
+* added donttest directive per CRAN suggestion -- passes windows now
 

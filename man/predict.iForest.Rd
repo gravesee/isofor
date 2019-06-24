@@ -4,9 +4,8 @@
 \alias{predict.iForest}
 \title{predict.iForest}
 \usage{
-\method{predict}{iForest}(object, newdata, ..., n.cores = 1,
-  nodes = FALSE, sparse = FALSE, replace_missing = TRUE,
-  sentinel = -9999999999)
+\method{predict}{iForest}(object, newdata, ..., nodes = FALSE,
+  sparse = FALSE, replace_missing = TRUE, sentinel = -9999999999)
 }
 \arguments{
 \item{object}{an \code{iForest} object}
@@ -14,9 +13,6 @@
 \item{newdata}{a data.frame to predict}
 
 \item{...}{optional arguments not used.}
-
-\item{n.cores}{number of cores to use for prediction of anomaly score. Must
-be compiled with openmp. Defaults to 1.}
 
 \item{nodes}{if true return nobs x ntrees dim matrix with terminal node ids}
 
@@ -31,6 +27,10 @@ numeric values with the \code{sentinel} argument}
 
 \item{sentinel}{value to use as stand-in for missing numeric values}
 }
+\value{
+A numeric vector of length \code{nrow(newdata)} containing values between zero and one.
+Values closer to zero are less likely to be anomalous.
+}
 \description{
 return predictions of various types for the isolation forest
 object
@@ -42,8 +42,6 @@ correspond to more isolated observations. If sparse or nodes are set to TRUE,
 a matrix of the requested type is returned.
 }
 \examples{
-\donttest{
 mod <- iForest(iris, phi=16, nt=5)
 score <- predict(mod, newdata = iris)
-}
 }

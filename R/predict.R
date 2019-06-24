@@ -7,8 +7,6 @@
 #'
 #' @param newdata a data.frame to predict
 #' @param ... optional arguments not used.
-#' @param n.cores number of cores to use for prediction of anomaly score. Must
-#' be compiled with openmp. Defaults to 1.
 #' @param nodes if true return nobs x ntrees dim matrix with terminal node ids
 #' @param sparse if true return sparse Matrix of dimension nobs x nTerminalNodes.
 #' Each column represents a terminal node. There are as many ones in each row
@@ -23,14 +21,14 @@
 #' correspond to more isolated observations. If sparse or nodes are set to TRUE,
 #' a matrix of the requested type is returned.
 #' @examples
-#' \donttest{
 #' mod <- iForest(iris, phi=16, nt=5)
 #' score <- predict(mod, newdata = iris)
-#' }
+#' @return A numeric vector of length \code{nrow(newdata)} containing values between zero and one.
+#' Values closer to zero are less likely to be anomalous.
 #' @import Matrix
 #' @importFrom parallel detectCores
 #' @export
-predict.iForest <- function(object, newdata, ..., n.cores=1, nodes = FALSE, sparse = FALSE, replace_missing=TRUE, sentinel=-9999999999) {
+predict.iForest <- function(object, newdata, ..., nodes = FALSE, sparse = FALSE, replace_missing=TRUE, sentinel=-9999999999) {
 
   if (!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
 
@@ -71,7 +69,6 @@ predict.iForest <- function(object, newdata, ..., n.cores=1, nodes = FALSE, spar
   } else if (nodes) {
 	  predict_iForest_nodes_cpp(newdata, object)
   } else {
-    num_cores = as.integer(max(1, min(n.cores, detectCores())))
-    predict_iForest_pathlength_cpp(newdata, object, num_cores)
+    predict_iForest_pathlength_cpp(newdata, object)
   }
 }

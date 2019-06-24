@@ -1,19 +1,5 @@
 [![Build Status](https://travis-ci.org/Zelazny7/isofor.svg?branch=master)](https://travis-ci.org/Zelazny7/isofor)
 
-Installation with openmp on osx
--------------------
-
-```
-brew install llvm
-```
-
-And then edit your ~/.R/Makevars file to look like so:
-
-```
-CXX = /usr/local/opt/llvm/bin/clang
-CXXFLAGS = -I/usr/local/opt/llvm/include -fopenmp
-LDFLAGS = -L/usr/local/opt/llvm/lib -fopenmp=libiomp5
-```
 
 Isolation Forest
 ----------------

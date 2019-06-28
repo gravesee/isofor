@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/Zelazny7/isofor.svg?branch=master)](https://travis-ci.org/Zelazny7/isofor)
 
+[![DOI](https://zenodo.org/badge/70544988.svg)](https://zenodo.org/badge/latestdoi/70544988)
+
 
 Isolation Forest
 ----------------

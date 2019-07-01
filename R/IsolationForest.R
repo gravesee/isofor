@@ -26,7 +26,7 @@ split_on_var.factor <- function(x, ..., idx=integer(32)) {
 recurse <- function(idx, e, l, ni=0, env, sentinel) {
 
   ## don't sample columns with all dups
-  dups <- sapply(env$X[idx,], function(x) all(duplicated(x)[-1L]))
+  dups <- sapply(env$X[idx,,drop=F], function(x) all(duplicated(x)[-1L]))
 
   ## Base case
   if (e >= l || length(idx) <= 1 || all(dups)) {
@@ -160,10 +160,10 @@ iForest <- function(X, nt=100, phi=256, seed=1234, replace_missing=TRUE, sentine
     forest <- vector("list", nt)
     for (i in 1:nt) {
       s <- sample(nrow(X), phi)
-      Xs <- X[s,]
+      Xs <- X[s,,drop=FALSE]
       if (!is.null(ncolsample)) {
         cols <- sample_cols_(Xs, sentinel)
-        Xs[,-head(cols, ncolsample)] <- NA
+        Xs[,-head(cols, ncolsample),drop=FALSE] <- NA
       }
       forest[[i]] <- iTree(Xs, l)
     }

@@ -13,7 +13,7 @@ predict_iForest_sparse_nodes <- function(x, Model) {
     .Call('_isofor_predict_iForest_sparse_nodes', PACKAGE = 'isofor', x, Model)
 }
 
-predict_iForest_pathlength_cpp <- function(df, Model, n_cores) {
-    .Call('_isofor_predict_iForest_pathlength_cpp', PACKAGE = 'isofor', df, Model, n_cores)
+predict_iForest_pathlength_cpp <- function(df, Model) {
+    .Call('_isofor_predict_iForest_pathlength_cpp', PACKAGE = 'isofor', df, Model)
 }
 

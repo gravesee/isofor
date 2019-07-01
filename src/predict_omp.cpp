@@ -5,10 +5,6 @@
 #include <math.h>
 #include "predict.h"
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 using namespace Rcpp;
 
 // Enumeration helpers corresponding to matrix columns or list indices
@@ -123,7 +119,6 @@ void predict_pathlength_cpp(SEXP df, SEXP Tree, double * out, int * current_node
     }
   }  while(!all_terminal);
 
-  #pragma omp critical
   for (int i = 0; i < df_nrows; i++) {
     double size = GET_TREE_ATTR(Tree, Size, current_node[i], nrows);
     out[i] += (depth[i] + cn(size)) / n_trees;
@@ -141,25 +136,22 @@ void predict_pathlength_cpp(SEXP df, SEXP Tree, double * out, int * current_node
  */
 
 // [[Rcpp::export]]
-SEXP predict_iForest_pathlength_cpp(SEXP df, List Model, SEXP n_cores) {
+SEXP predict_iForest_pathlength_cpp(SEXP df, List Model) {
 
   int df_nrows = LENGTH(VECTOR_ELT(df, 0));
   int n_trees = INTEGER(Model[NTREES])[0];
 
   double * pl = (double *) calloc(df_nrows, sizeof pl);
 
-  #pragma omp parallel num_threads(INTEGER(n_cores)[0])
   {
 
     int * current_node = (int *) calloc(df_nrows,  sizeof current_node);
     int * depth = (int *) calloc(df_nrows, sizeof depth);
 
-    #pragma omp for
     for (int i = 0; i < n_trees; i++) {
       predict_pathlength_cpp(df, VECTOR_ELT(Model[FOREST], i), pl, current_node, depth, n_trees);
     }
 
-    #pragma omp critical
     free(current_node);
     free(depth);
   }
@@ -169,7 +161,6 @@ SEXP predict_iForest_pathlength_cpp(SEXP df, List Model, SEXP n_cores) {
 
   double avg = cn(INTEGER(Model[PHI])[0]);
 
-  #pragma omp parallel for
   for( int i = 0; i < df_nrows; i++ ) {
     REAL(res)[i] = pow(2,  -1 * pl[i] / avg);
   }

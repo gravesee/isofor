@@ -15,4 +15,6 @@ There were no ERRORs or WARNINGs or NOTEs.
 * removed dontrun directive in predict method examples
 * added donttest directive per CRAN suggestion -- passes windows now
 * fixed typo in DESCRIPTION - "implemenation -> implementation"
+* added return value description for predict method
+* removed OMP so examples pass on i386
 

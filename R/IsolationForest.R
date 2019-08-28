@@ -127,6 +127,8 @@ iForest <- function(X, nt=100, phi=256, seed=1234, replace_missing=TRUE, sentine
   l = ceiling(log(phi, 2))
 
   if (!is.data.frame(X)) X <- as.data.frame(X)
+  
+  if(nrow(X) < phi) phi = nrow(X)
 
   ## impute missing values
   if (replace_missing) {
